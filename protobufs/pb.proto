@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message Vault {
+  string identity = 1;
+  map<string, string> index = 2;
+}
+
+message Entry {
+  string value = 1;
+
+  bool confidential = 100;
+  bool file = 101;
+}

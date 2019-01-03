@@ -1,0 +1,16 @@
+[package]
+name = "vault"
+version = "0.1.0"
+authors = ["Antoine POPINEAU <antoine.popineau@appscho.com>"]
+edition = "2018"
+
+[build-dependencies]
+protoc-rust = "2.0"
+
+[dependencies]
+log = "^0.4"
+pretty_env_logger = "^0.2"
+clap = { version = "^2.0", features = ["yaml"] }
+rand = "^0.6"
+protobuf = "^2.2"
+gpgme = "^0.8"

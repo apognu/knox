@@ -1,0 +1,82 @@
+name: vault
+version: "0.1.0"
+about: personal secret vault
+author: Antoine POPINEAU <antoine.popineau@appscho.com>
+
+subcommands:
+  - init:
+      about: Initializes an empty vault
+      args:
+        - identity:
+            value_name: GPG_IDENTITY
+            help: Email address of your GPG identity
+            required: true
+  
+  - list:
+      about: List all entries in the vault
+      args:
+        - path:
+            value_name: PATH
+            help: Only list entries in this prefix
+  
+  - show:
+      about: Display an entry's content
+      args:
+        - copy:
+            short: c
+            long: copy
+            help: Copy the main attribute to the clipboard
+            takes_value: false
+        - attribute:
+            short: a
+            long: attribute
+            help: Specify the attribute to copy or write. For copy, default, any 'password' attribute will be selected
+        - write:
+            short: w
+            long: write
+            help: Write the file content to disk
+        - stdout:
+            short: s
+            long: stdout
+            help: Write a single file attribute to STDOUT
+        - path:
+            value_name: PATH
+            help: Path to the entry
+            required: true
+
+  - add:
+      about: Add an entry to the vault
+      args:
+        - path:
+            value_name: PATH
+            help: Path to the entry
+            required: true
+        - attributes:
+            value_name: KEY=VALUE
+            help: List of attributes to set in the entry
+            required: true
+            multiple: true
+            min_values: 1
+  
+  - edit:
+      about: Edit an entry from the vault
+      args:
+        - path:
+            value_name: PATH
+            help: Path to the entry
+            required: true
+        - attributes:
+            value_name: KEY=VALUE
+            help: List of attributes to set in the entry
+            required: true
+            multiple: true
+            min_values: 1
+  
+  - delete:
+      about: Delete an entry from the vault
+      args:
+        - path:
+            value_name: PATH
+            help: Path to the entry
+            required: true
+
