@@ -14,3 +14,6 @@ clap = { version = "^2.0", features = ["yaml"] }
 rand = "^0.6"
 protobuf = "^2.2"
 gpgme = "^0.8"
+rpassword = "2.1.0"
+colored = "1.6"
+sha3 = "^0.8"

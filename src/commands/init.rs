@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::pb;
 use crate::persistence::{disk, gpg};
-use crate::util::error::GenericError;
+use crate::util::GenericError;
 
 pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   if disk::pack_exists(disk::METADATA_FILE) {

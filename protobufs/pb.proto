@@ -6,6 +6,10 @@ message Vault {
 }
 
 message Entry {
+  map<string, Attribute> attributes = 1;
+}
+
+message Attribute {
   string value = 1;
 
   bool confidential = 100;

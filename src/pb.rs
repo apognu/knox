@@ -224,6 +224,164 @@ impl ::protobuf::reflect::ProtobufValue for Vault {
 #[derive(PartialEq,Clone,Default)]
 pub struct Entry {
     // message fields
+    pub attributes: ::std::collections::HashMap<::std::string::String, Attribute>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl Entry {
+    pub fn new() -> Entry {
+        ::std::default::Default::default()
+    }
+
+    // repeated .Entry.AttributesEntry attributes = 1;
+
+    pub fn clear_attributes(&mut self) {
+        self.attributes.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_attributes(&mut self, v: ::std::collections::HashMap<::std::string::String, Attribute>) {
+        self.attributes = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_attributes(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, Attribute> {
+        &mut self.attributes
+    }
+
+    // Take field
+    pub fn take_attributes(&mut self) -> ::std::collections::HashMap<::std::string::String, Attribute> {
+        ::std::mem::replace(&mut self.attributes, ::std::collections::HashMap::new())
+    }
+
+    pub fn get_attributes(&self) -> &::std::collections::HashMap<::std::string::String, Attribute> {
+        &self.attributes
+    }
+}
+
+impl ::protobuf::Message for Entry {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(wire_type, is, &mut self.attributes)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(1, &self.attributes);
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(1, &self.attributes, os)?;
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Entry {
+        Entry::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(
+                    "attributes",
+                    |m: &Entry| { &m.attributes },
+                    |m: &mut Entry| { &mut m.attributes },
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<Entry>(
+                    "Entry",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+
+    fn default_instance() -> &'static Entry {
+        static mut instance: ::protobuf::lazy::Lazy<Entry> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const Entry,
+        };
+        unsafe {
+            instance.get(Entry::new)
+        }
+    }
+}
+
+impl ::protobuf::Clear for Entry {
+    fn clear(&mut self) {
+        self.clear_attributes();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Entry {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Entry {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct Attribute {
+    // message fields
     pub value: ::std::string::String,
     pub confidential: bool,
     pub file: bool,
@@ -232,8 +390,8 @@ pub struct Entry {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl Entry {
-    pub fn new() -> Entry {
+impl Attribute {
+    pub fn new() -> Attribute {
         ::std::default::Default::default()
     }
 
@@ -294,7 +452,7 @@ impl Entry {
     }
 }
 
-impl ::protobuf::Message for Entry {
+impl ::protobuf::Message for Attribute {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -386,8 +544,8 @@ impl ::protobuf::Message for Entry {
         Self::descriptor_static()
     }
 
-    fn new() -> Entry {
-        Entry::new()
+    fn new() -> Attribute {
+        Attribute::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -400,21 +558,21 @@ impl ::protobuf::Message for Entry {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                     "value",
-                    |m: &Entry| { &m.value },
-                    |m: &mut Entry| { &mut m.value },
+                    |m: &Attribute| { &m.value },
+                    |m: &mut Attribute| { &mut m.value },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                     "confidential",
-                    |m: &Entry| { &m.confidential },
-                    |m: &mut Entry| { &mut m.confidential },
+                    |m: &Attribute| { &m.confidential },
+                    |m: &mut Attribute| { &mut m.confidential },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                     "file",
-                    |m: &Entry| { &m.file },
-                    |m: &mut Entry| { &mut m.file },
+                    |m: &Attribute| { &m.file },
+                    |m: &mut Attribute| { &mut m.file },
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<Entry>(
-                    "Entry",
+                ::protobuf::reflect::MessageDescriptor::new::<Attribute>(
+                    "Attribute",
                     fields,
                     file_descriptor_proto()
                 )
@@ -422,18 +580,18 @@ impl ::protobuf::Message for Entry {
         }
     }
 
-    fn default_instance() -> &'static Entry {
-        static mut instance: ::protobuf::lazy::Lazy<Entry> = ::protobuf::lazy::Lazy {
+    fn default_instance() -> &'static Attribute {
+        static mut instance: ::protobuf::lazy::Lazy<Attribute> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const Entry,
+            ptr: 0 as *const Attribute,
         };
         unsafe {
-            instance.get(Entry::new)
+            instance.get(Attribute::new)
         }
     }
 }
 
-impl ::protobuf::Clear for Entry {
+impl ::protobuf::Clear for Attribute {
     fn clear(&mut self) {
         self.clear_value();
         self.clear_confidential();
@@ -442,13 +600,13 @@ impl ::protobuf::Clear for Entry {
     }
 }
 
-impl ::std::fmt::Debug for Entry {
+impl ::std::fmt::Debug for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for Entry {
+impl ::protobuf::reflect::ProtobufValue for Attribute {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
@@ -458,10 +616,13 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08pb.proto\"\x86\x01\n\x05Vault\x12\x1a\n\x08identity\x18\x01\x20\
     \x01(\tR\x08identity\x12'\n\x05index\x18\x02\x20\x03(\x0b2\x11.Vault.Ind\
     exEntryR\x05index\x1a8\n\nIndexEntry\x12\x10\n\x03key\x18\x01\x20\x01(\t\
-    R\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"U\n\
-    \x05Entry\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05value\x12\"\n\x0ccon\
-    fidential\x18d\x20\x01(\x08R\x0cconfidential\x12\x12\n\x04file\x18e\x20\
-    \x01(\x08R\x04fileb\x06proto3\
+    R\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"\x8a\
+    \x01\n\x05Entry\x126\n\nattributes\x18\x01\x20\x03(\x0b2\x16.Entry.Attri\
+    butesEntryR\nattributes\x1aI\n\x0fAttributesEntry\x12\x10\n\x03key\x18\
+    \x01\x20\x01(\tR\x03key\x12\x20\n\x05value\x18\x02\x20\x01(\x0b2\n.Attri\
+    buteR\x05value:\x028\x01\"Y\n\tAttribute\x12\x14\n\x05value\x18\x01\x20\
+    \x01(\tR\x05value\x12\"\n\x0cconfidential\x18d\x20\x01(\x08R\x0cconfiden\
+    tial\x12\x12\n\x04file\x18e\x20\x01(\x08R\x04fileb\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

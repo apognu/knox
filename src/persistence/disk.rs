@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fmt;
-use std::fs::{File, OpenOptions};
+use std::fs::{create_dir_all, File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
@@ -12,7 +12,7 @@ const BASE_PATH: &str = "/tmp/vault";
 pub(crate) const METADATA_FILE: &str = "_vault.meta";
 
 pub(crate) fn get_vault() -> Result<pb::Vault, Box<dyn Error>> {
-  let pack = super::gpg::decrypt(&mut File::open(normalize_path(METADATA_FILE))?)?;
+  let pack = super::gpg::decrypt(&mut File::open(normalize_path(&METADATA_FILE))?)?;
   let vault = parse_from_bytes::<pb::Vault>(&pack)?;
 
   Ok(vault)
@@ -37,6 +37,12 @@ pub(crate) fn write_metadata(data: &[u8]) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
+pub(crate) fn add_index(vault: &mut pb::Vault, path: &str, destination: &str) {
+  vault
+    .mut_index()
+    .insert(path.to_string(), destination.to_string());
+}
+
 pub(crate) fn write_pack<T>(path: T, data: &[u8]) -> Result<(), Box<dyn Error>>
 where
   T: AsRef<Path> + fmt::Display,
@@ -45,7 +51,7 @@ where
     .create(true)
     .truncate(true)
     .write(true)
-    .open(normalize_path(path))?;
+    .open(normalize_path(&path))?;
 
   file.write_all(&data)?;
 
@@ -56,12 +62,25 @@ pub(crate) fn pack_exists<T>(path: T) -> bool
 where
   T: AsRef<Path> + fmt::Display,
 {
-  Path::new(&normalize_path(path)).exists()
+  Path::new(&normalize_path(&path)).exists()
 }
 
-fn normalize_path<T>(path: T) -> String
+fn normalize_path<T>(path: &T) -> String
 where
   T: AsRef<Path> + fmt::Display,
 {
   format!("{}/{}", BASE_PATH, path)
+}
+
+pub(crate) fn create_directories<T>(path: &T) -> Result<(), Box<dyn Error>>
+where
+  T: AsRef<Path> + fmt::Display,
+{
+  let path = normalize_path(path);
+  let mut path = path.split('/').collect::<Vec<&str>>();
+  path.pop();
+
+  create_dir_all(path.join("/"))?;
+
+  Ok(())
 }

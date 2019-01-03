@@ -5,8 +5,11 @@ use gpgme::{Context, Key, Protocol};
 
 const DUMMY_IDENTITY: &str = "vault@appscho.com";
 
-fn get_context() -> Result<Context, impl Error> {
-  Context::from_protocol(Protocol::OpenPgp)
+fn get_context() -> Result<Context, Box<dyn Error>> {
+  let mut context = Context::from_protocol(Protocol::OpenPgp)?;
+  context.set_armor(true);
+
+  Ok(context)
 }
 
 pub(crate) fn encrypt(object: Vec<u8>) -> Result<Vec<u8>, Box<dyn Error>> {
