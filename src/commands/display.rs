@@ -1,4 +1,9 @@
 use std::error::Error;
+use std::thread;
+use std::time::Duration;
+
+use clipboard::{ClipboardContext, ClipboardProvider};
+use log::*;
 
 use crate::pb;
 use crate::persistence::disk;
@@ -18,13 +23,47 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let vault = disk::get_vault()?;
   let path = args.value_of("path").unwrap();
 
+  let print = args.is_present("print");
+  let copy = args.is_present("copy");
+  let write = args.is_present("write");
+
   if !vault.get_index().contains_key(path) {
     return Err(GenericError::throw("no entry was found at this path"));
   }
 
   let entry: pb::Entry = disk::read_pack(vault.get_index().get(path).unwrap())?;
 
-  display::entry(path, &entry);
+  if copy {
+    let name = args.value_of("attribute").unwrap_or("password");
+
+    match entry.get_attributes().get(name) {
+      Some(attribute) => {
+        let mut clip: ClipboardContext = ClipboardProvider::new()?;
+        clip.set_contents(attribute.value.clone())?;
+
+        info!(
+          "the content of the {} attribute was copied into your clipboard for 5 seconds",
+          name
+        );
+
+        thread::sleep(Duration::from_secs(5));
+
+        return Ok(());
+      }
+      None => {
+        return Err(GenericError::throw(
+          "the requested attribute does not exist in the entry",
+        ))
+      }
+    }
+  }
+
+  if write {
+    // TODO: implement write to file
+    return Ok(());
+  }
+
+  display::entry(path, &entry, print);
 
   Ok(())
 }

@@ -26,16 +26,15 @@ subcommands:
             short: p
             long: print
             help: Print out confidential attributes
-            takes_value: false
         - copy:
             short: c
             long: copy
             help: Copy the main attribute to the clipboard
-            takes_value: false
         - attribute:
             short: a
             long: attribute
             help: Specify the attribute to copy or write. For copy, default, any 'password' attribute will be selected
+            takes_value: true
         - write:
             short: w
             long: write

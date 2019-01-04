@@ -2,7 +2,7 @@ use std::cell::Cell;
 
 use crate::pb;
 
-pub(crate) fn entry(path: &str, entry: &pb::Entry) {
+pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
   use colored::*;
 
   let mut components: Vec<&str> = path.split('/').collect();
@@ -19,20 +19,25 @@ pub(crate) fn entry(path: &str, entry: &pb::Entry) {
   println!(" / {}", file_name.bold());
 
   let length = Cell::new(0);
-  let attributes = entry.get_attributes().iter().map(|(key, attribute)| {
-    if key.len() > length.get() {
-      length.set(key.len());
-    }
+  let attributes: Vec<(String, String)> = entry
+    .get_attributes()
+    .iter()
+    .map(|(key, attribute)| {
+      if key.len() > length.get() {
+        length.set(key.len());
+      }
 
-    match (attribute.confidential, attribute.file) {
-      (true, false) => (key.to_string(), format!("{}", "<redacted>".red())),
-      (false, true) => (key.to_string(), format!("{}", "<file content>".green())),
-      _ => (key.to_string(), attribute.value.clone()),
-    }
-  });
+      match (attribute.confidential, attribute.file, print) {
+        (true, false, false) => (key.to_string(), format!("{}", "<redacted>".red())),
+        (true, false, true) => (key.to_string(), format!("{}", attribute.value.red())),
+        (false, true, _) => (key.to_string(), format!("{}", "<file content>".green())),
+        _ => (key.to_string(), attribute.value.clone()),
+      }
+    })
+    .collect();
 
   for (key, value) in attributes {
-    for _ in 0..(length.get() - key.len() + 3) {
+    for _ in 0..=(length.get() - (key.len() - 2)) {
       print!(" ");
     }
 
