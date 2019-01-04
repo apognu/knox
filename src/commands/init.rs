@@ -1,3 +1,4 @@
+use log::*;
 use std::error::Error;
 
 use crate::pb;
@@ -18,6 +19,8 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   };
 
   disk::write_metadata(&gpg::encrypt(disk::pack(&vault)?)?)?;
+
+  info!("vault initialized successfully");
 
   Ok(())
 }

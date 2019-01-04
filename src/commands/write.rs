@@ -3,6 +3,7 @@ use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::Read;
 
+use log::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha3::{Digest, Sha3_256};
 
@@ -63,6 +64,8 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   disk::add_index(&mut vault, path, &destination);
   disk::write_metadata(&gpg::encrypt(disk::pack(&vault)?)?)?;
+
+  info!("entry {} was successfully added to the vault", path);
 
   Ok(())
 }
