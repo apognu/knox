@@ -18,7 +18,6 @@ pub(crate) fn build(paths: &pb::Vault) -> Rc<Item> {
   let paths = paths
     .get_index()
     .keys()
-    .into_iter()
     .map(|path| path.split('/').collect::<Vec<&str>>());
 
   for components in paths {

@@ -43,6 +43,17 @@ pub(crate) fn add_index(vault: &mut pb::Vault, path: &str, destination: &str) {
     .insert(path.to_string(), destination.to_string());
 }
 
+pub(crate) fn read_pack<M, T>(path: T) -> Result<M, Box<dyn Error>>
+where
+  T: AsRef<Path> + fmt::Display,
+  M: Message,
+{
+  let pack = super::gpg::decrypt(&mut File::open(normalize_path(&path))?)?;
+  let message = parse_from_bytes::<M>(&pack)?;
+
+  Ok(message)
+}
+
 pub(crate) fn write_pack<T>(path: T, data: &[u8]) -> Result<(), Box<dyn Error>>
 where
   T: AsRef<Path> + fmt::Display,

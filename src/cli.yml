@@ -22,6 +22,11 @@ subcommands:
   - show:
       about: Display an entry's content
       args:
+        - print:
+            short: p
+            long: print
+            help: Print out confidential attributes
+            takes_value: false
         - copy:
             short: c
             long: copy

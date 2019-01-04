@@ -37,7 +37,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   let entry = pb::Entry {
-    attributes: attributes,
+    attributes,
     ..pb::Entry::default()
   };
 
