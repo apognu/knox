@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::Read;
 
 use rand::{distributions::Alphanumeric, Rng};
 use sha3::{Digest, Sha3_256};
@@ -31,6 +33,18 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     if value == &"" {
       attribute.value = prompt_for_secret(key)?;
       attribute.confidential = true;
+    }
+    if value.starts_with('@') {
+      let mut file_chars = value.chars();
+      file_chars.next();
+
+      let mut file = OpenOptions::new().read(true).open(file_chars.as_str())?;
+      let mut buffer: Vec<u8> = Vec::new();
+      file.read_to_end(&mut buffer)?;
+
+      attribute.value = String::new();
+      attribute.bytes_value = buffer;
+      attribute.file = true;
     }
 
     attributes.insert(key.to_string(), attribute);

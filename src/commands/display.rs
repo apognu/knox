@@ -62,7 +62,7 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     if args.is_present("stdout") {
       match args.value_of("attribute") {
         Some(attribute) => match entry.get_attributes().get(attribute) {
-          Some(attribute) => print!("{}", attribute.value),
+          Some(attribute) => println!("{}", display::get_attribute_value(attribute)),
           None => {
             return Err(GenericError::throw(
               "the requested attribute does not exist in the entry",

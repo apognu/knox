@@ -87,8 +87,16 @@ where
       .write(true)
       .open(format!("{}/{}", &dir, key))?;
 
-    file.write_all(attribute.value.as_bytes())?;
+    file.write_all(get_attribute_value(attribute).as_bytes())?;
   }
 
   Ok(())
+}
+
+pub(crate) fn get_attribute_value(attribute: &pb::Attribute) -> String {
+  if attribute.file {
+    String::from_utf8(attribute.bytes_value.clone()).unwrap()
+  } else {
+    attribute.value.clone()
+  }
 }

@@ -383,6 +383,7 @@ impl ::protobuf::reflect::ProtobufValue for Entry {
 pub struct Attribute {
     // message fields
     pub value: ::std::string::String,
+    pub bytes_value: ::std::vec::Vec<u8>,
     pub confidential: bool,
     pub file: bool,
     // special fields
@@ -419,6 +420,32 @@ impl Attribute {
 
     pub fn get_value(&self) -> &str {
         &self.value
+    }
+
+    // bytes bytes_value = 2;
+
+    pub fn clear_bytes_value(&mut self) {
+        self.bytes_value.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_bytes_value(&mut self, v: ::std::vec::Vec<u8>) {
+        self.bytes_value = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_bytes_value(&mut self) -> &mut ::std::vec::Vec<u8> {
+        &mut self.bytes_value
+    }
+
+    // Take field
+    pub fn take_bytes_value(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.bytes_value, ::std::vec::Vec::new())
+    }
+
+    pub fn get_bytes_value(&self) -> &[u8] {
+        &self.bytes_value
     }
 
     // bool confidential = 100;
@@ -464,6 +491,9 @@ impl ::protobuf::Message for Attribute {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.value)?;
                 },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.bytes_value)?;
+                },
                 100 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
@@ -493,6 +523,9 @@ impl ::protobuf::Message for Attribute {
         if !self.value.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.value);
         }
+        if !self.bytes_value.is_empty() {
+            my_size += ::protobuf::rt::bytes_size(2, &self.bytes_value);
+        }
         if self.confidential != false {
             my_size += 3;
         }
@@ -507,6 +540,9 @@ impl ::protobuf::Message for Attribute {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
         if !self.value.is_empty() {
             os.write_string(1, &self.value)?;
+        }
+        if !self.bytes_value.is_empty() {
+            os.write_bytes(2, &self.bytes_value)?;
         }
         if self.confidential != false {
             os.write_bool(100, self.confidential)?;
@@ -561,6 +597,11 @@ impl ::protobuf::Message for Attribute {
                     |m: &Attribute| { &m.value },
                     |m: &mut Attribute| { &mut m.value },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                    "bytes_value",
+                    |m: &Attribute| { &m.bytes_value },
+                    |m: &mut Attribute| { &mut m.bytes_value },
+                ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                     "confidential",
                     |m: &Attribute| { &m.confidential },
@@ -594,6 +635,7 @@ impl ::protobuf::Message for Attribute {
 impl ::protobuf::Clear for Attribute {
     fn clear(&mut self) {
         self.clear_value();
+        self.clear_bytes_value();
         self.clear_confidential();
         self.clear_file();
         self.unknown_fields.clear();
@@ -620,9 +662,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01\n\x05Entry\x126\n\nattributes\x18\x01\x20\x03(\x0b2\x16.Entry.Attri\
     butesEntryR\nattributes\x1aI\n\x0fAttributesEntry\x12\x10\n\x03key\x18\
     \x01\x20\x01(\tR\x03key\x12\x20\n\x05value\x18\x02\x20\x01(\x0b2\n.Attri\
-    buteR\x05value:\x028\x01\"Y\n\tAttribute\x12\x14\n\x05value\x18\x01\x20\
-    \x01(\tR\x05value\x12\"\n\x0cconfidential\x18d\x20\x01(\x08R\x0cconfiden\
-    tial\x12\x12\n\x04file\x18e\x20\x01(\x08R\x04fileb\x06proto3\
+    buteR\x05value:\x028\x01\"z\n\tAttribute\x12\x14\n\x05value\x18\x01\x20\
+    \x01(\tR\x05value\x12\x1f\n\x0bbytes_value\x18\x02\x20\x01(\x0cR\nbytesV\
+    alue\x12\"\n\x0cconfidential\x18d\x20\x01(\x08R\x0cconfidential\x12\x12\
+    \n\x04file\x18e\x20\x01(\x08R\x04fileb\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
