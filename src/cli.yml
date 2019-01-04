@@ -51,6 +51,15 @@ subcommands:
   - add:
       about: Add an entry to the vault
       args:
+        - random_length:
+            short: l
+            long: length
+            value_name: LENGTH
+            help: Length for generated random secrets
+            takes_value: true
+        - random_symbols:
+            long: symbols
+            help: Add symbols into generated random secrets
         - path:
             value_name: PATH
             help: Path to the entry

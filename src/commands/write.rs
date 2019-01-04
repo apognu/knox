@@ -4,7 +4,7 @@ use std::fs::OpenOptions;
 use std::io::Read;
 
 use log::*;
-use rand::{distributions::Alphanumeric, Rng};
+use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
 use sha3::{Digest, Sha3_256};
 
 use crate::pb;
@@ -28,7 +28,12 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     };
 
     if value == &"-" {
-      attribute.value = random_secret();
+      let (length, symbols) = (
+        args.value_of("random_length").unwrap_or("16"),
+        args.is_present("random_symbols"),
+      );
+
+      attribute.value = random_secret(length, symbols)?;
       attribute.confidential = true;
     }
     if value == &"" {
@@ -74,11 +79,27 @@ pub(crate) fn edit(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-fn random_secret() -> String {
-  rand::thread_rng()
-    .sample_iter(&Alphanumeric)
-    .take(16)
-    .collect::<String>()
+const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789)(*&^%$#@!~";
+
+fn random_secret(length: &str, symbols: bool) -> Result<String, Box<dyn Error>> {
+  let length = length.parse::<usize>().unwrap_or(16);
+
+  if symbols {
+    let mut rng = rand::thread_rng();
+
+    Ok(
+      (0..length)
+        .map(|_| *CHARSET.choose(&mut rng).unwrap() as char)
+        .collect::<String>(),
+    )
+  } else {
+    Ok(
+      rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .collect::<String>(),
+    )
+  }
 }
 
 fn prompt_for_secret(key: &str) -> Result<String, Box<dyn Error>> {
