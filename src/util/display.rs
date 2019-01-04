@@ -1,6 +1,12 @@
 use std::cell::Cell;
+use std::error::Error;
+use std::fmt;
+use std::fs::{self, OpenOptions};
+use std::io::Write;
+use std::path::Path;
 
 use crate::pb;
+use crate::util::GenericError;
 
 pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
   use colored::*;
@@ -43,4 +49,46 @@ pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
 
     println!("{} = {}", key.bold(), value);
   }
+}
+
+pub(crate) fn write_files<T>(
+  path: T,
+  entry: &pb::Entry,
+  filter: &Option<Vec<&str>>,
+) -> Result<(), Box<dyn Error>>
+where
+  T: AsRef<Path> + fmt::Display,
+{
+  let dir = path.as_ref().to_str().unwrap().replace("/", "-");
+  let dir = format!("vault-{}", dir);
+  let path = Path::new(&dir);
+
+  if path.exists() {
+    return Err(GenericError::throw(&format!(
+      "'{}' already exists in the current directory",
+      dir
+    )));
+  }
+
+  fs::create_dir(&dir)?;
+
+  let attributes = entry
+    .get_attributes()
+    .iter()
+    .filter(|(key, _)| match &filter {
+      None => true,
+      Some(filter) => filter.contains(&key.as_ref()),
+    });
+
+  for (key, attribute) in attributes {
+    let mut file = OpenOptions::new()
+      .create(true)
+      .truncate(true)
+      .write(true)
+      .open(format!("{}/{}", &dir, key))?;
+
+    file.write_all(attribute.value.as_bytes())?;
+  }
+
+  Ok(())
 }

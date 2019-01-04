@@ -59,7 +59,34 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   if write {
-    // TODO: implement write to file
+    if args.is_present("stdout") {
+      match args.value_of("attribute") {
+        Some(attribute) => match entry.get_attributes().get(attribute) {
+          Some(attribute) => print!("{}", attribute.value),
+          None => {
+            return Err(GenericError::throw(
+              "the requested attribute does not exist in the entry",
+            ))
+          }
+        },
+        None => {
+          return Err(GenericError::throw(
+            "only a single attribute can be written to STDOUT, please use '--attribute'",
+          ))
+        }
+      }
+
+      return Ok(());
+    }
+
+    display::write_files(
+      path,
+      &entry,
+      &args
+        .value_of("attribute")
+        .and_then(|attribute| Some(attribute.split(',').collect::<Vec<&str>>())),
+    )?;
+
     return Ok(());
   }
 
