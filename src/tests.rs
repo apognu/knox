@@ -1,12 +1,31 @@
 use std::env;
+use std::io::Write;
 
-use gpgme::{Context, Data, Protocol};
+use gpgme::{edit, Context, Data, Protocol};
 use tempfile::TempDir;
 
 use crate::pb;
 
 pub(crate) const GPG_IDENTITY: &str = "vault@apognu.github.com";
-const GPG_KEY: &str = "-----BEGIN PGP PRIVATE KEY BLOCK-----
+const GPG_PUBLIC_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----
+mI0EXC+s5gEEANbbtYbwJj+kM+fJjEZTP007guZRSOzQgESMc7f2P+zC6vWwTHdF
+fczu9Oh7Q3KamZkEhP6R0TbHPY8fxKyP1kem+c4t2zDZyA2giCGmnhIj4szlJrK5
+AWkRloNbYjjDjBucrK/DGRgZ7twon6zJy2Wdfzmo4IOQoO7NqSAHIVklABEBAAG0
+JVZhdWx0IFRlc3RzIDx2YXVsdEBhcG9nbnUuZ2l0aHViLmNvbT6IzgQTAQgAOBYh
+BK/WdXChpxNPkdkOpzgcifui4NkgBQJcL6zmAhsDBQsJCAcDBRUKCQgLBRYDAgEA
+Ah4BAheAAAoJEDgcifui4NkgoYMD/iqUARnQIF0c8dSdAxGU9D7r4FD1Jhb+/wAj
+soejBzXIBzrwGL4L2/BPSPmZN+n9dD3/XwxTgNw4twTbBRf4ay/6tHUJGnsI8ToA
+GNZ78L/+Q+IeYjAFsS0Twk8yxblLbTLQMA52GGjUeB4doxgWiNTXCGh6lByZxVcu
+gHbO9tyfuI0EXC+s5gEEALH8soBR/aPCNFfoZP6ggHTr0oAJ1121xeF4EnrooWNN
+XoVyYqipmYULYgye4Xy1h50NsR1nz42OtMD4l8416YnacePgi9a5BWwIy6ZexsIl
+tr4i+JNDzQxJlN/p80HvjdaS4NnwuVkOqC1sVh75ybrkPZv+5uEMJRq2BjpaD1tR
+ABEBAAGItgQYAQgAIBYhBK/WdXChpxNPkdkOpzgcifui4NkgBQJcL6zmAhsMAAoJ
+EDgcifui4NkgsAED/1Rudmc14lHfslXLocvZvQUrIf7AkjCEJHEae2D1zvzx80U8
+Str1SX5I1Gxdj8O34V+wG9gexEEyZjFz5rdMUQpCXBRThPq6i+zwGnPuooxaRGVd
+QeI+6Dbu/zTJ3+kH6qII4hlu0dz058YqX2eEsVY2cBNcYAfA/6+r8o2fzAjy
+=b0sP
+-----END PGP PUBLIC KEY BLOCK-----";
+const GPG_SECRET_KEY: &str = "-----BEGIN PGP PRIVATE KEY BLOCK-----
 lQHYBFwvrOYBBADW27WG8CY/pDPnyYxGUz9NO4LmUUjs0IBEjHO39j/swur1sEx3
 RX3M7vToe0NympmZBIT+kdE2xz2PH8Ssj9ZHpvnOLdsw2cgNoIghpp4SI+LM5Say
 uQFpEZaDW2I4w4wbnKyvwxkYGe7cKJ+syctlnX85qOCDkKDuzakgByFZJQARAQAB
@@ -39,18 +58,98 @@ yd/pB+qiCOIZbtHc9OfGKl9nhLFWNnATXGAHwP+vq/KNn8wI8g==
 =FOJS
 -----END PGP PRIVATE KEY BLOCK-----";
 
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+enum EditorState {
+  Start,
+  Trust,
+  Ultimate,
+  Okay,
+  Quit,
+}
+
+impl Default for EditorState {
+  fn default() -> Self {
+    EditorState::Start
+  }
+}
+
+#[derive(Default)]
+struct Editor;
+
+impl edit::Editor for Editor {
+  type State = EditorState;
+
+  fn next_state(
+    state: Result<Self::State, gpgme::Error>,
+    status: edit::EditInteractionStatus,
+    need_response: bool,
+  ) -> Result<Self::State, gpgme::Error> {
+    use self::EditorState as State;
+
+    println!("[-- Code: {:?}, {:?} --]", status.code, status.args());
+
+    if !need_response {
+      return state;
+    }
+
+    if status.args() == Ok(edit::PROMPT) {
+      match state {
+        Ok(State::Start) => Ok(State::Trust),
+        Ok(State::Ultimate) => Ok(State::Quit),
+        Ok(State::Okay) | Err(_) => Ok(State::Quit),
+        Ok(State::Quit) => state,
+        _ => Err(gpgme::Error::GENERAL),
+      }
+    } else if (status.args() == Ok("edit_ownertrust.value")) && (state == Ok(State::Trust)) {
+      Ok(State::Ultimate)
+    } else if (status.args() == Ok("edit_ownertrust.set_ultimate.okay"))
+      && (state == Ok(State::Ultimate))
+    {
+      Ok(State::Okay)
+    } else {
+      Err(gpgme::Error::GENERAL)
+    }
+  }
+
+  fn action<W: Write>(&self, state: Self::State, mut out: W) -> Result<(), gpgme::Error> {
+    use self::EditorState as State;
+
+    match state {
+      State::Trust => out.write_all(b"trust")?,
+      State::Ultimate => out.write_all(b"5")?,
+      State::Okay => out.write_all(b"y")?,
+      State::Quit => write!(out, "{}", edit::QUIT)?,
+      _ => return Err(gpgme::Error::GENERAL),
+    }
+
+    Ok(())
+  }
+}
+
 pub(crate) fn setup() -> TempDir {
   let tmp = tempfile::tempdir().expect("could not create temporary directory");
 
   let mut context =
     Context::from_protocol(Protocol::OpenPgp).expect("could not create GPG context");
-
   context.set_armor(true);
+
   context
-    .import(Data::from_bytes(&GPG_KEY).expect("could not read GPG key"))
-    .expect("could not import GPG key");
+    .import(Data::from_bytes(&GPG_SECRET_KEY).expect("could not read GPG key"))
+    .expect("could not import GPG secret key");
+
+  context
+    .import(Data::from_bytes(&GPG_PUBLIC_KEY).expect("could not read GPG key"))
+    .expect("could not import GPG secret key");
 
   env::set_var("VAULT_PATH", tmp.path());
+
+  let key = context
+    .get_key("AFD67570A1A7134F91D90EA7381C89FBA2E0D920")
+    .expect("could not get GPG key");
+
+  context
+    .edit_key_with(&key, Editor, &mut Vec::new())
+    .expect("could not set key trust level");
 
   tmp
 }
