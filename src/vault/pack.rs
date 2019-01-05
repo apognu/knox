@@ -39,14 +39,16 @@ pub(crate) fn delete<T>(vault: &mut pb::Vault, path: T) -> Result<(), Box<dyn Er
 where
   T: AsRef<Path>,
 {
-  if let Some(entry) = vault
+  if let Some(salt) = vault
     .get_index()
     .get(&format!("{}", path.as_ref().display()))
   {
-    wire::write_metadata(&vault)?;
-    remove_file(normalize_path(&entry))?;
+    let (_, real_path) = wire::hash_path(path, Some(salt));
 
-    for directory in Path::new(&entry).ancestors() {
+    wire::write_metadata(&vault)?;
+    remove_file(normalize_path(&real_path))?;
+
+    for directory in Path::new(&real_path).ancestors() {
       let _ = remove_dir(normalize_path(&format!("{}", directory.display())));
     }
 

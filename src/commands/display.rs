@@ -12,7 +12,7 @@ use crate::vault::{pack, wire};
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let vault = wire::get_vault()?;
-  if vault.get_index().len() == 0 {
+  if vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
   }
@@ -37,7 +37,8 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     return Err(GenericError::throw("no entry was found at this path"));
   }
 
-  let entry: pb::Entry = pack::read(vault.get_index().get(path).unwrap())?;
+  let (_, real_path) = wire::hash_path(path, Some(vault.get_index().get(path).unwrap()));
+  let entry: pb::Entry = pack::read(real_path)?;
 
   if copy {
     let name = args.value_of("attribute").unwrap_or("password");

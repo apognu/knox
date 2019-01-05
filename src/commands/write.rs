@@ -5,7 +5,6 @@ use std::io::Read;
 
 use log::*;
 use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
-use sha3::{Digest, Sha3_256};
 
 use crate::pb;
 use crate::util::GenericError;
@@ -62,12 +61,12 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   };
 
   let mut vault = wire::get_vault()?;
-  let destination = hash_path(path);
+  let (salt, hash) = wire::hash_path(path, None);
 
-  wire::create_parents(&destination)?;
-  pack::write(&vault, &destination, &wire::pack(&entry)?)?;
+  wire::create_parents(&hash)?;
+  pack::write(&vault, &hash, &wire::pack(&entry)?)?;
 
-  wire::add_index(&mut vault, path, &destination);
+  wire::add_index(&mut vault, path, &salt);
   wire::write_metadata(&vault)?;
 
   info!("entry {} was successfully added to the vault", path);
@@ -108,13 +107,4 @@ fn prompt_for_secret(key: &str) -> Result<String, Box<dyn Error>> {
   let secret = rpassword::prompt_password_stdout(&format!("Enter value for '{}': ", key.bold()))?;
 
   Ok(secret)
-}
-
-fn hash_path(path: &str) -> String {
-  let mut hasher = Sha3_256::new();
-  hasher.input(path);
-
-  let hash = format!("{:x}", hasher.result());
-
-  format!("{}/{}", &hash[0..2], hash)
 }

@@ -21,3 +21,4 @@ rpassword = "2.1.0"
 colored = "1.6"
 sha3 = "^0.8"
 clipboard = "^0.5"
+uuid = { version = "0.7", features = ["v4"] }

@@ -20,7 +20,7 @@ pub(crate) fn get_keys(context: &mut Context, identity: &str) -> Result<Vec<Key>
     .filter(|k| k.can_encrypt())
     .collect();
 
-  if keys.len() > 0 {
+  if !keys.is_empty() {
     Ok(keys)
   } else {
     Err(GenericError::throw(

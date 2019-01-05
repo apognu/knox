@@ -38,7 +38,7 @@ subcommands:
         - write:
             short: w
             long: write
-            help: Write the file content to wire
+            help: Write the file content to disk
         - stdout:
             short: s
             long: stdout
