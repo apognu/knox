@@ -8,8 +8,8 @@ use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
 use sha3::{Digest, Sha3_256};
 
 use crate::pb;
-use crate::persistence::{disk, gpg};
 use crate::util::GenericError;
+use crate::vault::{pack, wire};
 
 pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
@@ -61,14 +61,14 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     ..pb::Entry::default()
   };
 
-  let mut vault = disk::get_vault()?;
+  let mut vault = wire::get_vault()?;
   let destination = hash_path(path);
 
-  disk::create_directories(&destination)?;
-  disk::write_pack(&destination, &gpg::encrypt(disk::pack(&entry)?)?)?;
+  wire::create_parents(&destination)?;
+  pack::write(&vault, &destination, &wire::pack(&entry)?)?;
 
-  disk::add_index(&mut vault, path, &destination);
-  disk::write_metadata(&gpg::encrypt(disk::pack(&vault)?)?)?;
+  wire::add_index(&mut vault, path, &destination);
+  wire::write_metadata(&vault)?;
 
   info!("entry {} was successfully added to the vault", path);
 

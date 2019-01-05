@@ -43,7 +43,8 @@ pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
     .collect();
 
   for (key, value) in attributes {
-    for _ in 0..=(length.get() - (key.len() - 2)) {
+    print!("  ");
+    for _ in 0..=(length.get() - key.len()) {
       print!(" ");
     }
 

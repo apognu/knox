@@ -3,14 +3,20 @@ use std::thread;
 use std::time::Duration;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
+use colored::*;
 use log::*;
 
 use crate::pb;
-use crate::persistence::disk;
 use crate::util::{display, hierarchy, GenericError};
+use crate::vault::{pack, wire};
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = disk::get_vault()?;
+  let vault = wire::get_vault()?;
+  if vault.get_index().len() == 0 {
+    info!("the vault is empty");
+    return Ok(());
+  }
+
   let list = hierarchy::build(&vault);
 
   println!("🔒 Vault store:");
@@ -20,7 +26,7 @@ pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = disk::get_vault()?;
+  let vault = wire::get_vault()?;
   let path = args.value_of("path").unwrap();
 
   let print = args.is_present("print");
@@ -31,7 +37,7 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     return Err(GenericError::throw("no entry was found at this path"));
   }
 
-  let entry: pb::Entry = disk::read_pack(vault.get_index().get(path).unwrap())?;
+  let entry: pb::Entry = pack::read(vault.get_index().get(path).unwrap())?;
 
   if copy {
     let name = args.value_of("attribute").unwrap_or("password");
@@ -42,8 +48,8 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         clip.set_contents(attribute.value.clone())?;
 
         info!(
-          "the content of the {} attribute was copied into your clipboard for 5 seconds",
-          name
+          "the content of the '{}' attribute was copied into your clipboard for 5 seconds",
+          name.bold()
         );
 
         thread::sleep(Duration::from_secs(5));

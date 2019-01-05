@@ -4,12 +4,15 @@ extern crate clap;
 
 mod commands;
 mod pb;
-mod persistence;
 mod util;
+mod vault;
 
 use log::*;
 use std::error::Error;
 use std::{env, process};
+
+#[cfg(test)]
+mod tests;
 
 fn main() -> Result<(), Box<dyn Error>> {
     use clap::App;
