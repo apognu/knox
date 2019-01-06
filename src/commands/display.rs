@@ -6,12 +6,11 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use colored::*;
 use log::*;
 
-use crate::pb;
-use crate::util::{display, hierarchy, GenericError};
-use crate::vault::{pack, wire};
+use crate::prelude::*;
+use crate::util::{self, display, hierarchy, GenericError};
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = wire::get_vault()?;
+  let vault = Vault::open()?;
   if vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
@@ -26,7 +25,7 @@ pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = wire::get_vault()?;
+  let vault = Vault::open()?;
   let path = args.value_of("path").unwrap();
 
   let print = args.is_present("print");
@@ -37,8 +36,8 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     return Err(GenericError::throw("no entry was found at this path"));
   }
 
-  let (_, real_path) = wire::hash_path(path, Some(vault.get_index().get(path).unwrap()));
-  let entry: pb::Entry = pack::read(real_path)?;
+  let (_, real_path) = util::hash_path(path, Some(vault.get_index().get(path).unwrap()));
+  let entry = Entry::read(real_path)?;
 
   if copy {
     let name = args.value_of("attribute").unwrap_or("password");

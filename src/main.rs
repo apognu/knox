@@ -4,8 +4,9 @@ extern crate clap;
 
 mod commands;
 mod pb;
+pub mod prelude;
 mod util;
-mod vault;
+mod gpg;
 
 use log::*;
 use std::error::Error;

@@ -2,15 +2,15 @@ use std::error::Error;
 
 use log::*;
 
-use crate::vault::{pack, wire};
+use crate::prelude::*;
 
 pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let mut vault = wire::get_vault()?;
+  let mut vault = Vault::open()?;
   let path = args.value_of("path").unwrap();
 
-  pack::delete(&mut vault, path)?;
-  wire::remove_index(&mut vault, path);
-  wire::write_metadata(&vault)?;
+  vault.delete_pack(path)?;
+  vault.remove_index(path);
+  vault.write()?;
 
   info!("entry '{}' was successfully deleted from the vault", path);
 

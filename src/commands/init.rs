@@ -1,12 +1,12 @@
 use log::*;
 use std::error::Error;
 
-use crate::vault::wire;
+use crate::prelude::*;
 
 pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let identity = args.value_of("identity").unwrap();
 
-  wire::write_metadata(&wire::create_metadata(identity)?)?;
+  Vault::create(identity)?.write()?;
 
   info!("vault initialized successfully");
 
@@ -17,7 +17,7 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 mod tests {
   use clap::App;
 
-  use crate::vault::wire;
+  use crate::prelude::*;
 
   #[test]
   fn init() {
@@ -30,7 +30,7 @@ mod tests {
       assert_eq!(super::init(args).is_ok(), true);
       assert_eq!(super::init(args).is_err(), true);
 
-      let vault = wire::get_vault().expect("could not get vault metadata");
+      let vault = Vault::open().expect("could not get vault metadata");
 
       assert_eq!(vault.get_identity(), "vault@apognu.github.com");
 
