@@ -1,10 +1,12 @@
 pub(crate) mod display;
 mod error;
+mod attributes;
 pub(crate) mod hierarchy;
 
 use std::env;
 use std::path::Path;
 
+pub(crate) use self::attributes::*;
 pub(crate) use self::error::*;
 use crate::vault::wire::BASE_PATH;
 
