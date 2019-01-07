@@ -6,7 +6,7 @@ use std::io::Write;
 use std::path::Path;
 
 use crate::pb;
-use crate::util::GenericError;
+use crate::util::VaultError;
 
 pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
   use colored::*;
@@ -65,7 +65,7 @@ where
   let path = Path::new(&dir);
 
   if path.exists() {
-    return Err(GenericError::throw(&format!(
+    return Err(VaultError::throw(&format!(
       "'{}' already exists in the current directory",
       dir
     )));

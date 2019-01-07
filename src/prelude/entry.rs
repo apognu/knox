@@ -27,9 +27,9 @@ mod tests {
   use crate::prelude::*;
 
   #[test]
-  fn read_pack() {
+  fn read() {
     let _tmp = crate::tests::setup();
-    let vault = crate::tests::get_test_vault();
+    let mut vault = crate::tests::get_test_vault();
 
     let entry = Entry {
       attributes: {
@@ -57,10 +57,10 @@ mod tests {
     };
 
     vault
-      .write_pack("pack.bin", &entry)
+      .write_entry("pack.bin", &entry)
       .expect("could not write pack");
 
-    let retrieved = Entry::read("pack.bin").expect("could not read pack");
+    let retrieved = vault.read_entry("pack.bin").expect("could not read pack");
 
     assert_eq!(retrieved, entry);
   }

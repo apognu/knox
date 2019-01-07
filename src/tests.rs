@@ -86,8 +86,6 @@ impl edit::Editor for Editor {
   ) -> Result<Self::State, gpgme::Error> {
     use self::EditorState as State;
 
-    println!("[-- Code: {:?}, {:?} --]", status.code, status.args());
-
     if !need_response {
       return state;
     }

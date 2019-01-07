@@ -4,7 +4,7 @@ use gpgme::data::IntoData;
 use gpgme::{Context, Key, Protocol};
 
 use crate::pb;
-use crate::util::GenericError;
+use crate::util::VaultError;
 
 pub(crate) fn get_context() -> Result<Context, Box<dyn Error>> {
   let mut context = Context::from_protocol(Protocol::OpenPgp)?;
@@ -23,7 +23,7 @@ pub(crate) fn get_keys(context: &mut Context, identity: &str) -> Result<Vec<Key>
   if !keys.is_empty() {
     Ok(keys)
   } else {
-    Err(GenericError::throw(
+    Err(VaultError::throw(
       "no private key was found for provided identity",
     ))
   }

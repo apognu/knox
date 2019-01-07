@@ -7,7 +7,7 @@ use colored::*;
 use log::*;
 
 use crate::prelude::*;
-use crate::util::{self, display, hierarchy, GenericError};
+use crate::util::{display, hierarchy, VaultError};
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let vault = Vault::open()?;
@@ -32,24 +32,29 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let copy = args.is_present("copy");
   let write = args.is_present("write");
 
-  if !vault.get_index().contains_key(path) {
-    return Err(GenericError::throw("no entry was found at this path"));
-  }
-
-  let (_, real_path) = util::hash_path(path, Some(vault.get_index().get(path).unwrap()));
-  let entry = Entry::read(real_path)?;
+  let entry = vault.read_entry(path)?;
 
   if copy {
-    let name = args.value_of("attribute").unwrap_or("password");
+    let name = if let Some(attributes) = args.values_of("attribute") {
+      attributes.collect()
+    } else {
+      vec!["password"]
+    };
 
-    match entry.get_attributes().get(name) {
+    if name.len() > 1 {
+      return Err(VaultError::throw(
+        "only one attribute can be copied to the clipboard",
+      ));
+    }
+
+    match entry.get_attributes().get(name[0]) {
       Some(attribute) => {
         let mut clip: ClipboardContext = ClipboardProvider::new()?;
         clip.set_contents(attribute.value.clone())?;
 
         info!(
           "the content of the '{}' attribute was copied into your clipboard for 5 seconds",
-          name.bold()
+          name[0].bold()
         );
 
         thread::sleep(Duration::from_secs(5));
@@ -57,7 +62,7 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         return Ok(());
       }
       None => {
-        return Err(GenericError::throw(
+        return Err(VaultError::throw(
           "the requested attribute does not exist in the entry",
         ))
       }
@@ -70,13 +75,13 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         Some(attribute) => match entry.get_attributes().get(attribute) {
           Some(attribute) => println!("{}", display::get_attribute_value(attribute)),
           None => {
-            return Err(GenericError::throw(
+            return Err(VaultError::throw(
               "the requested attribute does not exist in the entry",
             ))
           }
         },
         None => {
-          return Err(GenericError::throw(
+          return Err(VaultError::throw(
             "only a single attribute can be written to STDOUT, please use '--attribute'",
           ))
         }

@@ -3,17 +3,17 @@ use std::fs::{create_dir_all, remove_dir, remove_file, File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-use protobuf::{parse_from_bytes, Message};
+use protobuf::parse_from_bytes;
 
 use super::Packing;
 use crate::gpg;
 use crate::pb::*;
-use crate::util::{self, GenericError};
+use crate::util::{self, VaultError};
 
 impl Vault {
   pub fn create(identity: &str) -> Result<Vault, Box<dyn Error>> {
     if Vault::has_pack(util::METADATA_FILE) {
-      return Err(GenericError::throw(
+      return Err(VaultError::throw(
         "a vault already exists, refusing to overwrite",
       ));
     }
@@ -30,7 +30,7 @@ impl Vault {
 
   pub fn open() -> Result<Vault, Box<dyn Error>> {
     if !Path::new(&util::normalize_path(&util::METADATA_FILE)).exists() {
-      return Err(GenericError::throw(&format!(
+      return Err(VaultError::throw(&format!(
         "vault does not exist at {}, please initialize it",
         util::normalize_path(&""),
       )));
@@ -44,7 +44,14 @@ impl Vault {
 
   pub fn write(&self) -> Result<(), Box<dyn Error>> {
     create_dir_all(util::normalize_path(&""))?;
-    self.write_pack(util::METADATA_FILE, self)?;
+
+    let mut file = OpenOptions::new()
+      .create(true)
+      .truncate(true)
+      .write(true)
+      .open(util::normalize_path(&util::METADATA_FILE))?;
+
+    file.write_all(&gpg::encrypt(self, &self.pack()?)?)?;
 
     Ok(())
   }
@@ -59,30 +66,43 @@ impl Vault {
     self.mut_index().remove(path);
   }
 
-  pub fn write_pack<P, M>(&self, path: P, message: &M) -> Result<(), Box<dyn Error>>
-  where
-    P: AsRef<Path>,
-    M: Message,
-  {
+  pub fn read_entry(&self, path: &str) -> Result<Entry, Box<dyn Error>> {
+    if !self.get_index().contains_key(path) {
+      return Err(VaultError::throw("no entry was found at this path"));
+    }
+
+    let (_, real_path) = util::hash_path(path, Some(self.get_index().get(path).unwrap()));
+    let entry = Entry::read(real_path)?;
+
+    Ok(entry)
+  }
+
+  pub fn write_entry(&mut self, path: &str, entry: &Entry) -> Result<(), Box<dyn Error>> {
+    let salt = self
+      .get_index()
+      .get(path)
+      .and_then(|x| Some(String::as_str(x)));
+
+    let (salt, hash) = util::hash_path(path, salt);
+
+    util::create_parents(&hash)?;
+
     let mut file = OpenOptions::new()
       .create(true)
       .truncate(true)
       .write(true)
-      .open(util::normalize_path(&path))?;
+      .open(&util::normalize_path(&hash))?;
 
-    file.write_all(&gpg::encrypt(self, &message.pack()?)?)?;
+    file.write_all(&gpg::encrypt(self, &entry.pack()?)?)?;
+
+    self.add_index(path, &salt);
+    self.write()?;
 
     Ok(())
   }
 
-  pub(crate) fn delete_pack<T>(&mut self, path: T) -> Result<(), Box<dyn Error>>
-  where
-    T: AsRef<Path>,
-  {
-    if let Some(salt) = self
-      .get_index()
-      .get(&format!("{}", path.as_ref().display()))
-    {
+  pub(crate) fn delete_entry(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
+    if let Some(salt) = self.get_index().get(&format!("{}", path)) {
       let (_, real_path) = util::hash_path(path, Some(salt));
 
       self.write()?;
@@ -92,10 +112,12 @@ impl Vault {
         let _ = remove_dir(util::normalize_path(&format!("{}", directory.display())));
       }
 
+      self.remove_index(&path);
+
       return Ok(());
     }
 
-    Err(GenericError::throw(
+    Err(VaultError::throw(
       "requested entry does not exist in the vault",
     ))
   }
@@ -145,7 +167,7 @@ mod tests {
   #[test]
   fn add_index() {
     let _tmp = crate::tests::setup();
-    let mut vault = Vault::create(crate::tests::GPG_IDENTITY).expect("could not create vault");
+    let mut vault = crate::tests::get_test_vault();
 
     vault.write().expect("could not write metadata");
     vault.add_index("foo/bar", "lorem/ipsum");
@@ -165,7 +187,7 @@ mod tests {
   #[test]
   fn remove_index() {
     let _tmp = crate::tests::setup();
-    let mut vault = Vault::create(crate::tests::GPG_IDENTITY).expect("could not create vault");
+    let mut vault = crate::tests::get_test_vault();
 
     vault
       .mut_index()
@@ -181,7 +203,7 @@ mod tests {
   }
 
   #[test]
-  fn write_pack() {
+  fn pack() {
     let message = Vault { ..Vault::default() };
 
     let wired = message.pack().expect("could not create pack");
@@ -198,5 +220,20 @@ mod tests {
 
     assert_eq!(true, Vault::has_pack("test"));
     assert_eq!(false, Vault::has_pack("foobar"));
+  }
+
+  #[test]
+  fn read_and_write_entry() {
+    let _tmp = crate::tests::setup();
+    let entry = Entry::default();
+
+    let mut vault = crate::tests::get_test_vault();
+    assert_eq!(vault.write_entry("foo/bar", &entry).is_ok(), true);
+
+    let vault = Vault::open().expect("could not read vault");
+    let retrieved = vault.read_entry("foo/bar");
+
+    assert_eq!(retrieved.is_ok(), true);
+    assert_eq!(retrieved.unwrap(), entry);
   }
 }

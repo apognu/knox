@@ -6,17 +6,17 @@ use std::io::Read;
 use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
 
 use crate::pb;
-use crate::util::GenericError;
+use crate::util::VaultError;
 
 pub(crate) fn build_attributes(
   args: &clap::ArgMatches,
 ) -> Result<HashMap<String, pb::Attribute>, Box<dyn Error>> {
   let mut attributes: HashMap<String, pb::Attribute> = HashMap::new();
 
-  for attribute in args.values_of("attributes").unwrap() {
+  for attribute in args.values_of("attributes").unwrap_or_default() {
     let attribute: Vec<&str> = attribute.splitn(2, '=').collect();
     if attribute.len() < 2 {
-      return Err(GenericError::throw("could not parse attributes"));
+      return Err(VaultError::throw("could not parse attributes"));
     }
 
     let (key, value) = (&attribute[0], &attribute[1]);

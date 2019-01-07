@@ -1,5 +1,6 @@
-use log::*;
 use std::error::Error;
+
+use log::*;
 
 use crate::prelude::*;
 

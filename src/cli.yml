@@ -34,7 +34,9 @@ subcommands:
             short: a
             long: attribute
             help: Specify the attribute to copy or write. For copy, default, any 'password' attribute will be selected
+            multiple: true
             takes_value: true
+            number_of_values: 1
         - write:
             short: w
             long: write
@@ -43,6 +45,7 @@ subcommands:
             short: s
             long: stdout
             help: Write a single file attribute to STDOUT
+            requires: write
         - path:
             value_name: PATH
             help: Path to the entry
@@ -74,6 +77,15 @@ subcommands:
   - edit:
       about: Edit an entry from the vault
       args:
+        - random_length:
+            short: l
+            long: length
+            value_name: LENGTH
+            help: Length for generated random secrets
+            takes_value: true
+        - random_symbols:
+            long: symbols
+            help: Add symbols into generated random secrets
         - path:
             value_name: PATH
             help: Path to the entry
@@ -81,9 +93,14 @@ subcommands:
         - attributes:
             value_name: KEY=VALUE
             help: List of attributes to set in the entry
-            required: true
             multiple: true
-            min_values: 1
+        - delete:
+            short: d
+            long: delete
+            value_name: ATTRIBUTE
+            help: Attribute to delete from the entry
+            multiple: true
+            number_of_values: 1
   
   - delete:
       about: Delete an entry from the vault
