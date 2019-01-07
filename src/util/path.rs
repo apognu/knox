@@ -3,7 +3,6 @@ use std::error::Error;
 use std::fs::create_dir_all;
 use std::path::Path;
 
-use sha3::{Digest, Sha3_256};
 use uuid::Uuid;
 
 pub(crate) const BASE_PATH: &str = "/tmp/vault";
@@ -31,22 +30,15 @@ where
   format!("{}/{}", base, path.as_ref().display())
 }
 
-pub(crate) fn hash_path<T>(path: T, salt: Option<&str>) -> (String, String)
-where
-  T: AsRef<Path>,
-{
-  let salt = match salt {
-    None => Uuid::new_v4().to_hyphenated().to_string(),
-    Some(salt) => salt.to_string(),
-  };
+pub(crate) fn hash_path(salt: Option<&String>) -> String {
+  match salt {
+    None => {
+      let uuid = Uuid::new_v4().to_hyphenated().to_string();
 
-  let mut hasher = Sha3_256::new();
-  hasher.input(&salt);
-  hasher.input(format!("{}", path.as_ref().display()));
-
-  let hash = format!("{:x}", hasher.result());
-
-  (salt, format!("{}/{}", &hash[0..2], hash))
+      format!("{}/{}", &uuid[..2], &uuid)
+    }
+    Some(salt) => salt.clone(),
+  }
 }
 
 #[cfg(test)]
@@ -75,19 +67,8 @@ mod tests {
 
   #[test]
   fn hash_path() {
-    let result = super::hash_path("foo/bar/lorem/ipsum", Some("test"));
+    let result = super::hash_path(Some(&"test".to_string()));
 
-    assert_eq!(
-      (
-        "test".to_string(),
-        "5f/5f04f2a16436fac1c160fa9a618e20aed77591b49fc5464763c27b585bf82a2f".to_string()
-      ),
-      result
-    );
-
-    assert_eq!(
-      result,
-      super::hash_path("foo/bar/lorem/ipsum", Some("test"))
-    );
+    assert_eq!(result, "test");
   }
 }

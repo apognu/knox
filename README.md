@@ -116,6 +116,15 @@ $ vault edit website.com -d url username=newlogin password=
 
 This command will delete thre ```url``` attribute from the secret, change the ```username``` attribute to ```newlogin``` and prompt for the value of the redacted attribute ```password```
 
+## Rename a secret
+
+A secret can be renamed through the ```rename``` command:
+
+```
+$ vault rename my/first/secret new/location/secret
+ INFO  vault::commands::write > entry my/first/secret was successfully renamed to new/location/secret
+```
+
 ## Delete a secret
 
 ```

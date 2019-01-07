@@ -3,10 +3,10 @@
 extern crate clap;
 
 mod commands;
+mod gpg;
 mod pb;
 pub mod prelude;
 mod util;
-mod gpg;
 
 use log::*;
 use std::error::Error;
@@ -30,6 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("show", Some(args)) => commands::display::show(args),
         ("add", Some(args)) => commands::write::add(args),
         ("edit", Some(args)) => commands::write::edit(args),
+        ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
         _ => {
             println!("{}", app.usage());

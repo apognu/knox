@@ -13,6 +13,8 @@ impl Entry {
   where
     P: AsRef<Path>,
   {
+    println!("{}", path.as_ref().display());
+
     let pack = gpg::decrypt(&mut File::open(util::normalize_path(&path))?)?;
     let message = parse_from_bytes::<Entry>(&pack)?;
 

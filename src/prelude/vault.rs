@@ -71,19 +71,14 @@ impl Vault {
       return Err(VaultError::throw("no entry was found at this path"));
     }
 
-    let (_, real_path) = util::hash_path(path, Some(self.get_index().get(path).unwrap()));
-    let entry = Entry::read(real_path)?;
+    let path = util::hash_path(self.get_index().get(path));
+    let entry = Entry::read(path)?;
 
     Ok(entry)
   }
 
   pub fn write_entry(&mut self, path: &str, entry: &Entry) -> Result<(), Box<dyn Error>> {
-    let salt = self
-      .get_index()
-      .get(path)
-      .and_then(|x| Some(String::as_str(x)));
-
-    let (salt, hash) = util::hash_path(path, salt);
+    let hash = util::hash_path(self.get_index().get(path));
 
     util::create_parents(&hash)?;
 
@@ -95,20 +90,20 @@ impl Vault {
 
     file.write_all(&gpg::encrypt(self, &entry.pack()?)?)?;
 
-    self.add_index(path, &salt);
+    self.add_index(path, &hash);
     self.write()?;
 
     Ok(())
   }
 
   pub(crate) fn delete_entry(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
-    if let Some(salt) = self.get_index().get(&format!("{}", path)) {
-      let (_, real_path) = util::hash_path(path, Some(salt));
+    if let Some(salt) = self.get_index().get(path) {
+      let hash = util::hash_path(Some(salt));
 
       self.write()?;
-      remove_file(util::normalize_path(&real_path))?;
+      remove_file(util::normalize_path(&hash))?;
 
-      for directory in Path::new(&real_path).ancestors() {
+      for directory in Path::new(&hash).ancestors() {
         let _ = remove_dir(util::normalize_path(&format!("{}", directory.display())));
       }
 

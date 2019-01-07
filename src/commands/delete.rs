@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use colored::*;
 use log::*;
 
 use crate::prelude::*;
@@ -11,7 +12,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   vault.delete_entry(path)?;
   vault.write()?;
 
-  info!("entry '{}' was successfully deleted from the vault", path);
+  info!("entry {} was successfully deleted from the vault", path.bold());
 
   Ok(())
 }

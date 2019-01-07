@@ -101,6 +101,18 @@ subcommands:
             help: Attribute to delete from the entry
             multiple: true
             number_of_values: 1
+
+  - rename:
+      about: Rename an entry
+      args:
+        - source:
+            value_name: SOURCE
+            help: Current path to the entry
+            required: true
+        - destination:
+            value_name: DESTINATION
+            help: New path to the entry
+            required: true
   
   - delete:
       about: Delete an entry from the vault

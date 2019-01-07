@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use colored::*;
 use log::*;
 
 use crate::prelude::*;
@@ -22,7 +23,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   vault.write_entry(&path, &entry)?;
 
-  info!("entry {} was successfully added to the vault", path);
+  info!("entry {} was successfully added to the vault", path.bold());
 
   Ok(())
 }
@@ -48,7 +49,36 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
   vault.write_entry(&path, &entry)?;
 
-  info!("entry {} was successfully edited", path);
+  info!("entry {} was successfully edited", path.bold());
+
+  Ok(())
+}
+
+pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+  let source = args.value_of("source").unwrap();
+  let destination = args.value_of("destination").unwrap();
+  let mut vault = Vault::open()?;
+
+  if !vault.get_index().contains_key(source) {
+    return Err(VaultError::throw("no entry was found at this path"));
+  }
+  if vault.get_index().contains_key(destination) {
+    return Err(VaultError::throw(
+      "an entry already exists at this destination",
+    ));
+  }
+
+  let salt = vault.get_index().get(source).unwrap().clone();
+
+  vault.add_index(destination, &salt);
+  vault.remove_index(source);
+  vault.write()?;
+
+  info!(
+    "entry {} was successfully renamed to {}",
+    source.bold(),
+    destination.bold()
+  );
 
   Ok(())
 }
@@ -184,5 +214,74 @@ mod tests {
     }
 
     panic!("command edit not triggering");
+  }
+
+  #[test]
+  fn rename() {
+    let _tmp = crate::tests::setup();
+
+    let mut vault = crate::tests::get_test_vault();
+    vault.write().expect("could not write tests vault");
+
+    let entry = &Entry {
+      attributes: {
+        let mut map = HashMap::new();
+        map.insert(
+          "apikey".to_string(),
+          Attribute {
+            value: "abcdef".to_string(),
+            ..Attribute::default()
+          },
+        );
+        map.insert(
+          "to_be_deleted".to_string(),
+          Attribute {
+            value: "abcdef".to_string(),
+            ..Attribute::default()
+          },
+        );
+
+        map
+      },
+      ..Entry::default()
+    };
+
+    vault
+      .write_entry("foo/bar", &entry)
+      .expect("could not write entry");
+
+    let yml = load_yaml!("../cli.yml");
+
+    let app = App::from_yaml(yml).get_matches_from(vec!["", "rename", "foo/bar", "foo/bar"]);
+
+    if let ("rename", Some(args)) = app.subcommand() {
+      assert_eq!(super::rename(args).is_err(), true);
+
+      let retrieved = Vault::open()
+        .expect("could not open vault")
+        .read_entry("foo/bar")
+        .expect("could not read entry");
+
+      assert_eq!(entry, &retrieved);
+
+      return;
+    }
+
+    let app = App::from_yaml(yml).get_matches_from(vec!["", "rename", "foo/bar", "lorem/ipsum"]);
+
+    if let ("rename", Some(args)) = app.subcommand() {
+      assert_eq!(super::rename(args).is_ok(), true);
+
+      let retrieved = Vault::open()
+        .expect("could not open vault")
+        .read_entry("lorem/ipsum")
+        .expect("could not read entry");
+
+      assert_eq!(entry, &retrieved);
+
+      return;
+    }
+
+    panic!("command rename not triggering");
   }
 }
