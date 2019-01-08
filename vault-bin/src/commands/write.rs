@@ -86,8 +86,6 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
 #[cfg(test)]
 mod tests {
-  use std::collections::HashMap;
-
   use clap::App;
   use vault::prelude::*;
 
@@ -145,32 +143,12 @@ mod tests {
     let tmp = crate::spec::setup();
     let mut vault = crate::spec::get_test_vault(tmp.path()).expect("could not write tests vault");
 
-    vault
-      .write_entry(
-        "foo/bar",
-        &Entry {
-          attributes: {
-            let mut map = HashMap::new();
-            map.insert(
-              "apikey".to_string(),
-              Attribute {
-                value: "abcdef".to_string(),
-                ..Attribute::default()
-              },
-            );
-            map.insert(
-              "to_be_deleted".to_string(),
-              Attribute {
-                value: "abcdef".to_string(),
-                ..Attribute::default()
-              },
-            );
+    let mut entry = Entry::default();
+    entry.add_attribute("apikey", "abcdef");
+    entry.add_attribute("to_be_deleted", "abcdef");
 
-            map
-          },
-          ..Entry::default()
-        },
-      )
+    vault
+      .write_entry("foo/bar", &entry)
       .expect("could not write entry");
 
     let yml = load_yaml!("../cli.yml");
@@ -218,28 +196,9 @@ mod tests {
     let tmp = crate::spec::setup();
     let mut vault = crate::spec::get_test_vault(tmp.path()).expect("could not write tests vault");
 
-    let entry = &Entry {
-      attributes: {
-        let mut map = HashMap::new();
-        map.insert(
-          "apikey".to_string(),
-          Attribute {
-            value: "abcdef".to_string(),
-            ..Attribute::default()
-          },
-        );
-        map.insert(
-          "to_be_deleted".to_string(),
-          Attribute {
-            value: "abcdef".to_string(),
-            ..Attribute::default()
-          },
-        );
-
-        map
-      },
-      ..Entry::default()
-    };
+    let mut entry = Entry::default();
+    entry.add_attribute("apikey", "abcdef");
+    entry.add_attribute("to_be_deleted", "abcdef");
 
     vault
       .write_entry("foo/bar", &entry)
@@ -257,7 +216,7 @@ mod tests {
         .read_entry("foo/bar")
         .expect("could not read entry");
 
-      assert_eq!(entry, &retrieved);
+      assert_eq!(&entry, &retrieved);
 
       return;
     }
@@ -272,7 +231,7 @@ mod tests {
         .read_entry("lorem/ipsum")
         .expect("could not read entry");
 
-      assert_eq!(entry, &retrieved);
+      assert_eq!(&entry, &retrieved);
 
       return;
     }

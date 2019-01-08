@@ -19,12 +19,29 @@ impl Entry {
 
     Ok(message)
   }
+
+  pub fn add_attribute(&mut self, key: &str, value: &str) {
+    let attribute = Attribute {
+      value: value.to_string(),
+      ..Attribute::default()
+    };
+
+    self.attributes.insert(key.to_string(), attribute);
+  }
+
+  pub fn add_confidential_attribute(&mut self, key: &str, value: &str) {
+    let attribute = Attribute {
+      value: value.to_string(),
+      confidential: true,
+      ..Attribute::default()
+    };
+
+    self.attributes.insert(key.to_string(), attribute);
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use std::collections::HashMap;
-
   use crate::prelude::*;
 
   #[test]
@@ -32,30 +49,9 @@ mod tests {
     let tmp = crate::spec::setup();
     let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    let entry = Entry {
-      attributes: {
-        let mut map = HashMap::new();
-
-        map.insert(
-          "lorem".to_string(),
-          Attribute {
-            value: "ipsum".to_string(),
-            ..Attribute::default()
-          },
-        );
-
-        map.insert(
-          "foo".to_string(),
-          Attribute {
-            value: "bar".to_string(),
-            ..Attribute::default()
-          },
-        );
-
-        map
-      },
-      ..Entry::default()
-    };
+    let mut entry = Entry::default();
+    entry.add_attribute("lorem", "ipsum");
+    entry.add_attribute("foo", "bar");
 
     handle
       .write_entry("pack.bin", &entry)

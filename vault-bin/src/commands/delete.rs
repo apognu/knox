@@ -25,7 +25,6 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 #[cfg(test)]
 mod tests {
   use clap::App;
-  use std::collections::HashMap;
 
   use vault::prelude::*;
 
@@ -34,25 +33,11 @@ mod tests {
     let tmp = crate::spec::setup();
     let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    handle
-      .write_entry(
-        "foo/bar",
-        &Entry {
-          attributes: {
-            let mut map = HashMap::new();
-            map.insert(
-              "apikey".to_string(),
-              Attribute {
-                value: "abcdef".to_string(),
-                ..Attribute::default()
-              },
-            );
+    let mut entry = Entry::default();
+    entry.add_attribute("apikey", "abcdef");
 
-            map
-          },
-          ..Entry::default()
-        },
-      )
+    handle
+      .write_entry("foo/bar", &entry)
       .expect("could not write entry");
 
     let yml = load_yaml!("../cli.yml");
