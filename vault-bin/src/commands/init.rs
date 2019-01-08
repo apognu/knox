@@ -18,8 +18,6 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
 #[cfg(test)]
 mod tests {
-  use std::env;
-
   use clap::App;
 
   use vault::prelude::*;
