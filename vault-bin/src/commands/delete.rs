@@ -8,7 +8,7 @@ use vault::prelude::*;
 use crate::util::vault_path;
 
 pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let mut vault = VaultHandle::open(vault_path())?;
+  let mut vault = VaultHandle::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();
 
   vault.delete_entry(path)?;

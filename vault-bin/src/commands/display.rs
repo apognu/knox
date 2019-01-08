@@ -10,7 +10,7 @@ use crate::util::{display, hierarchy, vault_path};
 use vault::prelude::*;
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let handle = VaultHandle::open(vault_path())?;
+  let handle = VaultHandle::open(vault_path()?)?;
   if handle.vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
@@ -25,7 +25,7 @@ pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = VaultHandle::open(vault_path())?;
+  let vault = VaultHandle::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();
 
   let print = args.is_present("print");

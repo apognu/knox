@@ -8,6 +8,7 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
 
 ## Summary
 
+ * [Architecture](#architecture)
  * [Create the vault](#create-the-vault)
  * Secret management
    * [Add a secret](#add-a-secret)
@@ -16,6 +17,25 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
    * [Print a secret](#print-a-secret)
    * [Edit a secret](#edit-a-secret)
    * [Delete a secret](#delete-a-secret)
+
+## Architecture
+
+A vault is constituted of a __vault.meta_ file, at its root, containing the GPG identity used to encrypt the data as well as an index, mapping virtual secret paths to filesystem files. All filesystem paths in the vault are relative to this metadata file.
+
+When a secret is created with a virtual file of _one/two/three_, a random UUID is generated, for instance, _2aef7bc6-856c-492d-aaee-07e0f2579812_, and the secret's attributes will be stored in a file named _2a/2aef7bc6-856c-492d-aaee-07e0f2579812_.
+
+The mapping between virtual paths and filesystem paths is kept in the metadata file, and allows for retrieving data based on familiar user-defined paths. Hence, the metadata file is essential for using the vault and **should be backed up** along with the data. Secret files could still be manually decrypted and read, but you would lose the ability to refer to them through virtual paths.
+
+The filesystem paths being random, and both the secret and metadata files being encrypted with your GPG public key, the filesystem does not give any information about what is stored inside the secrets.
+
+All files are marshalled with _Protocol Buffers_ and encrypted through _gpg-agent_, producing armored ciphertext.
+
+### Crates
+
+This project is made of two distinct crates:
+
+ * **vault**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
+ * **vault-bin**: A binary using the aforementioned library to provide a CLI interface to the vault.
 
 ## Create the vault
 

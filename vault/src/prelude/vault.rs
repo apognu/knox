@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fs::{create_dir_all, remove_dir, remove_file, File, OpenOptions};
+use std::fs::{create_dir_all, read_dir, remove_dir, remove_file, File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
@@ -20,16 +20,25 @@ impl VaultHandle {
   where
     P: AsRef<Path>,
   {
-    if Path::new(&format!(
-      "{}/{}",
-      path.as_ref().display(),
-      &util::METADATA_FILE
-    ))
-    .exists()
-    {
-      return Err(VaultError::throw(
-        "a vault already exists, refusing to overwrite",
-      ));
+    if path.as_ref().join(util::METADATA_FILE).exists() {
+      return Err(VaultError::throw(&format!(
+        "a vault already exists at {}, refusing to overwrite",
+        path.as_ref().display(),
+      )));
+    }
+
+    if path.as_ref().exists() {
+      match read_dir(&path) {
+        Err(err) => return Err(Box::new(err)),
+        Ok(directory) => {
+          if directory.count() > 0 {
+            return Err(VaultError::throw(&format!(
+              "a non-empty directory already exists at {}, refusing to overwrite",
+              path.as_ref().display()
+            )));
+          }
+        }
+      }
     }
 
     gpg::get_keys(&mut gpg::get_context()?, identity)?;
@@ -49,8 +58,8 @@ impl VaultHandle {
   where
     P: AsRef<Path>,
   {
-    let metadata = format!("{}/{}", path.as_ref().display(), &util::METADATA_FILE);
-    if !Path::new(&metadata).exists() {
+    let metadata = path.as_ref().join(util::METADATA_FILE);
+    if !metadata.exists() {
       return Err(VaultError::throw(&format!(
         "vault does not exist at {}, please initialize it",
         path.as_ref().display(),

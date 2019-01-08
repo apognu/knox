@@ -8,7 +8,7 @@ use crate::util::{self, vault_path};
 
 pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
-  let mut handle = VaultHandle::open(vault_path())?;
+  let mut handle = VaultHandle::open(vault_path()?)?;
 
   if handle.vault.get_index().contains_key(path) {
     return Err(VaultError::throw("an entry already exists at this path"));
@@ -33,7 +33,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let attributes = util::attributes::build(args)?;
   let delete_attributes = args.values_of("delete");
 
-  let mut handle = VaultHandle::open(vault_path())?;
+  let mut handle = VaultHandle::open(vault_path()?)?;
 
   if !handle.vault.get_index().contains_key(path) {
     return Err(VaultError::throw("no entry was found at this path"));
@@ -58,7 +58,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let source = args.value_of("source").unwrap();
   let destination = args.value_of("destination").unwrap();
-  let mut handle = VaultHandle::open(vault_path())?;
+  let mut handle = VaultHandle::open(vault_path()?)?;
 
   if !handle.vault.get_index().contains_key(source) {
     return Err(VaultError::throw("no entry was found at this path"));

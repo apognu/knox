@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use colored::*;
 use log::*;
 
 use vault::prelude::*;
@@ -8,10 +9,11 @@ use crate::util::vault_path;
 
 pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let identity = args.value_of("identity").unwrap();
+  let path = vault_path()?;
 
-  VaultHandle::create(vault_path(), identity)?.write()?;
+  VaultHandle::create(&path, identity)?.write()?;
 
-  info!("vault initialized successfully");
+  info!("vault initialized successfully at {}", path.bold());
 
   Ok(())
 }
