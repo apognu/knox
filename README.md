@@ -1,6 +1,6 @@
 # vault.rs
 
-![](https://api.travis-ci.org/apognu/vault.rs.svg?branch=master)
+![](https://img.shields.io/travis/apognu/vault.rs/master.svg?style=flat-square)
 
 An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust with one big change: encryption is handled through GPG.
 
