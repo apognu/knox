@@ -3,9 +3,6 @@
 extern crate clap;
 
 mod commands;
-mod gpg;
-mod pb;
-pub mod prelude;
 mod util;
 
 use log::*;
@@ -13,7 +10,7 @@ use std::error::Error;
 use std::{env, process};
 
 #[cfg(test)]
-mod tests;
+mod spec;
 
 fn main() -> Result<(), Box<dyn Error>> {
     use clap::App;

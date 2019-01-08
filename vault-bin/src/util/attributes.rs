@@ -4,14 +4,10 @@ use std::fs::OpenOptions;
 use std::io::Read;
 
 use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
+use vault::prelude::*;
 
-use crate::pb;
-use crate::util::VaultError;
-
-pub(crate) fn build_attributes(
-  args: &clap::ArgMatches,
-) -> Result<HashMap<String, pb::Attribute>, Box<dyn Error>> {
-  let mut attributes: HashMap<String, pb::Attribute> = HashMap::new();
+pub(crate) fn build(args: &clap::ArgMatches) -> Result<HashMap<String, Attribute>, Box<dyn Error>> {
+  let mut attributes: HashMap<String, Attribute> = HashMap::new();
 
   for attribute in args.values_of("attributes").unwrap_or_default() {
     let attribute: Vec<&str> = attribute.splitn(2, '=').collect();
@@ -20,9 +16,9 @@ pub(crate) fn build_attributes(
     }
 
     let (key, value) = (&attribute[0], &attribute[1]);
-    let mut attribute = pb::Attribute {
+    let mut attribute = Attribute {
       value: value.to_string(),
-      ..pb::Attribute::default()
+      ..Attribute::default()
     };
 
     if value == &"-" {

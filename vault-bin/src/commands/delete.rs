@@ -3,16 +3,21 @@ use std::error::Error;
 use colored::*;
 use log::*;
 
-use crate::prelude::*;
+use vault::prelude::*;
+
+use crate::util::vault_path;
 
 pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let mut vault = Vault::open()?;
+  let mut vault = VaultHandle::open(vault_path())?;
   let path = args.value_of("path").unwrap();
 
   vault.delete_entry(path)?;
   vault.write()?;
 
-  info!("entry {} was successfully deleted from the vault", path.bold());
+  info!(
+    "entry {} was successfully deleted from the vault",
+    path.bold()
+  );
 
   Ok(())
 }
@@ -22,16 +27,14 @@ mod tests {
   use clap::App;
   use std::collections::HashMap;
 
-  use crate::prelude::*;
+  use vault::prelude::*;
 
   #[test]
   fn delete() {
-    let _tmp = crate::tests::setup();
+    let tmp = crate::spec::setup();
+    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    let mut vault = crate::tests::get_test_vault();
-    vault.write().expect("could not write tests vault");
-
-    vault
+    handle
       .write_entry(
         "foo/bar",
         &Entry {
@@ -58,7 +61,7 @@ mod tests {
     if let ("delete", Some(args)) = app.subcommand() {
       assert_eq!(super::delete(args).is_ok(), true);
 
-      let vault = Vault::open().expect("could not open vault");
+      let vault = VaultHandle::open(tmp.path()).expect("could not open vault");
 
       assert_eq!(vault.read_entry("foo/bar").is_err(), true);
 

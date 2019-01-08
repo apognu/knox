@@ -4,18 +4,19 @@ use std::path::Path;
 
 use protobuf::parse_from_bytes;
 
+use super::VaultHandle;
 use crate::gpg;
 use crate::pb::*;
 use crate::util;
 
 impl Entry {
-  pub fn read<P>(path: P) -> Result<Entry, Box<dyn Error>>
+  pub fn read<P>(handle: &VaultHandle, path: P) -> Result<Entry, Box<dyn Error>>
   where
     P: AsRef<Path>,
   {
     println!("{}", path.as_ref().display());
 
-    let pack = gpg::decrypt(&mut File::open(util::normalize_path(&path))?)?;
+    let pack = gpg::decrypt(&mut File::open(util::normalize_path(handle, &path))?)?;
     let message = parse_from_bytes::<Entry>(&pack)?;
 
     Ok(message)
@@ -30,8 +31,8 @@ mod tests {
 
   #[test]
   fn read() {
-    let _tmp = crate::tests::setup();
-    let mut vault = crate::tests::get_test_vault();
+    let tmp = crate::spec::setup();
+    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     let entry = Entry {
       attributes: {
@@ -58,11 +59,11 @@ mod tests {
       ..Entry::default()
     };
 
-    vault
+    handle
       .write_entry("pack.bin", &entry)
       .expect("could not write pack");
 
-    let retrieved = vault.read_entry("pack.bin").expect("could not read pack");
+    let retrieved = handle.read_entry("pack.bin").expect("could not read pack");
 
     assert_eq!(retrieved, entry);
   }

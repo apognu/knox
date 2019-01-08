@@ -6,17 +6,17 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use colored::*;
 use log::*;
 
-use crate::prelude::*;
-use crate::util::{display, hierarchy, VaultError};
+use crate::util::{display, hierarchy, vault_path};
+use vault::prelude::*;
 
 pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = Vault::open()?;
-  if vault.get_index().is_empty() {
+  let handle = VaultHandle::open(vault_path())?;
+  if handle.vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
   }
 
-  let list = hierarchy::build(&vault);
+  let list = hierarchy::build(&handle.vault);
 
   println!("🔒 Vault store:");
   hierarchy::print(&mut vec![], &list);
@@ -25,7 +25,7 @@ pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = Vault::open()?;
+  let vault = VaultHandle::open(vault_path())?;
   let path = args.value_of("path").unwrap();
 
   let print = args.is_present("print");

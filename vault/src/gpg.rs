@@ -53,9 +53,11 @@ where
 mod tests {
   #[test]
   fn encrypt_and_decrypt() {
-    let vault = crate::tests::get_test_vault();
+    let tmp = crate::spec::setup();
+    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+
     let data = "foobarhelloworld".as_bytes();
-    let ciphertext = super::encrypt(&vault, data).expect("could not encrypt data");
+    let ciphertext = super::encrypt(&handle.vault, data).expect("could not encrypt data");
 
     assert_eq!(
       data.to_vec(),

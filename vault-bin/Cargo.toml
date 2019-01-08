@@ -1,0 +1,24 @@
+[package]
+name = "vault-bin"
+version = "0.1.0"
+authors = ["Antoine POPINEAU <antoine.popineau@appscho.com>"]
+edition = "2018"
+workspace = "../"
+
+[[bin]]
+name = "vault"
+path = "src/main.rs"
+
+[dev-dependencies]
+tempfile = "^3.0"
+gpgme = "^0.8"
+
+[dependencies]
+vault = { path = "../vault" }
+log = "^0.4"
+pretty_env_logger = "^0.2"
+clap = { version = "^2.0", features = ["yaml"] }
+rand = "^0.6"
+rpassword = "2.1.0"
+colored = "1.6"
+clipboard = "^0.5"

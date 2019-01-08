@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::pb;
+use vault::prelude::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Item {
@@ -11,7 +11,7 @@ pub(crate) enum Item {
   File(String),
 }
 
-pub(crate) fn build(paths: &pb::Vault) -> Rc<Item> {
+pub(crate) fn build(paths: &Vault) -> Rc<Item> {
   let root = Rc::new(Item::Directory("/".to_string(), RefCell::new(Vec::new())));
   let mut index: HashMap<String, Rc<Item>> = HashMap::new();
 
@@ -100,7 +100,7 @@ mod tests {
   use std::rc::Rc;
 
   use super::Item;
-  use crate::pb;
+  use vault::prelude::*;
 
   #[test]
   fn build() {
@@ -114,9 +114,9 @@ mod tests {
     .cloned()
     .collect();
 
-    let vault = pb::Vault {
+    let vault = Vault {
       index: data,
-      ..pb::Vault::default()
+      ..Vault::default()
     };
 
     let expected = Rc::new(Item::Directory(

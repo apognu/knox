@@ -1,10 +1,12 @@
 use std::env;
+use std::error::Error;
 use std::io::Write;
+use std::path::Path;
 
 use gpgme::{edit, Context, Data, Protocol};
 use tempfile::TempDir;
 
-use crate::pb;
+use vault::prelude::*;
 
 pub(crate) const GPG_IDENTITY: &str = "vault@apognu.github.com";
 const GPG_PUBLIC_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -124,7 +126,7 @@ impl edit::Editor for Editor {
   }
 }
 
-pub(crate) fn setup() -> TempDir {
+pub fn setup() -> TempDir {
   let tmp = tempfile::tempdir().expect("could not create temporary directory");
 
   let mut context =
@@ -152,9 +154,12 @@ pub(crate) fn setup() -> TempDir {
   tmp
 }
 
-pub(crate) fn get_test_vault() -> pb::Vault {
-  pb::Vault {
-    identity: crate::tests::GPG_IDENTITY.to_string(),
-    ..pb::Vault::default()
-  }
+pub fn get_test_vault<P>(path: P) -> Result<VaultHandle, Box<dyn Error>>
+where
+  P: AsRef<Path>,
+{
+  let handle = VaultHandle::create(&path, GPG_IDENTITY)?;
+  handle.write()?;
+
+  Ok(handle)
 }

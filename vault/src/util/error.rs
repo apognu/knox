@@ -2,18 +2,18 @@ use std::error::Error;
 use std::fmt::{Display, Formatter, Result};
 
 #[derive(Debug, Clone)]
-pub(crate) struct VaultError {
+pub struct VaultError {
   message: String,
 }
 
 impl<'a> VaultError {
-  fn new(message: &'a str) -> Self {
+  pub fn new(message: &'a str) -> Self {
     Self {
       message: message.to_string(),
     }
   }
 
-  pub(crate) fn throw(message: &str) -> Box<dyn Error> {
+  pub fn throw(message: &str) -> Box<dyn Error> {
     Box::new(VaultError::new(message))
   }
 }

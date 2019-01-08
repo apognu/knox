@@ -5,10 +5,9 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-use crate::pb;
-use crate::util::VaultError;
+use vault::prelude::*;
 
-pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
+pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   use colored::*;
 
   let mut components: Vec<&str> = path.split('/').collect();
@@ -54,7 +53,7 @@ pub(crate) fn entry(path: &str, entry: &pb::Entry, print: bool) {
 
 pub(crate) fn write_files<T>(
   path: T,
-  entry: &pb::Entry,
+  entry: &Entry,
   filter: &Option<Vec<&str>>,
 ) -> Result<(), Box<dyn Error>>
 where
@@ -94,7 +93,7 @@ where
   Ok(())
 }
 
-pub(crate) fn get_attribute_value(attribute: &pb::Attribute) -> String {
+pub(crate) fn get_attribute_value(attribute: &Attribute) -> String {
   if attribute.file {
     String::from_utf8(attribute.bytes_value.clone()).unwrap()
   } else {
