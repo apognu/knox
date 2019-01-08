@@ -14,9 +14,25 @@ install:
   - rustup component add clippy
   - cargo update
 
-script:
-  - cargo clippy
-  - cargo test -- --test-threads=1
+jobs:
+  include:
+    - stage: Test
+      script:
+        - cargo clippy
+        - cargo test -- --test-threads=1
+    - stage: Build and deploy as GitHub release
+      script: cargo build --release
+      deploy:
+        provider: releases
+        name: master
+        body: Prerelease built from master
+        file: target/release/vault
+        on:
+          branch: master
+        api_key:
+          secure: PQOknPjKBt0WKyES809g9yOYguw2HLJGm2JpXhUdmy6NObu3kVWmnW6i22BUtQ62em7/oACrcFm3qN/ZGvMwIRccqfqccbrFhtqgzfGSfIhsVCDwaKrJMhXAmQgLAU2Fg5KQcENtlMWkOBtOGJiE47pBB4E/cFjG5YOxI0/xi4fjeEJA4QbHduypBUnd5loc6LtpADFKbiHM2su1ThMQUvFThHv03UkwtHyDise2kWphg5AX/iCblO2/d90kNmCEJURlyTio8LyaF71DOc+3wz3LqkDBE90ffonb9BJFn0q8aEjVLnB+Iwd5bGA9i/9q+srmr9cNixhrfz5yc2545xgqeAY6GyqE98sOzKY3U+Yji0aES91CF3Hg82oa5c+k4ouPt+WJdwiqWl3PS/Giyh+tbhZ94QM2OcBm9FfSQpLLPSj+lGqbkbSt81KS7YJZ6+FwwN1AAYDmSHMbFy9fqoouNi15li1Y4wqC8keAeTx+IUder8n6pvZCvjBQ/gDiWbVktzJeJ8BgRYnXAv1FkQG5rabe+pA6gNuVvmNk2Ccsh7RngtmKAaHXFsHYYhTlamBDvyPDs2cUhLOYVEBofERmNh99FbvABFcf8FKcNQeHzzOp1x2fAMDctaXeKUpcZcXzehsF7UUw1azCx81UXACysMd7X1seJp8epZkJoms=
+        prerelease: true
+        skip_cleanup: true
 
 cache: cargo
 before_cache:
