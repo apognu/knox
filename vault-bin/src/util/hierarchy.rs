@@ -77,10 +77,12 @@ pub(crate) fn print(path: &mut Vec<String>, item: &Rc<Item>) {
       path.push(name.to_string());
 
       if name != "/" {
-        for _ in 1..path.len() {
-          print!("  ");
-        }
-        println!("{} {}", "/".dimmed(), name.blue());
+        println!(
+          "{: >width$} {}",
+          "/".dimmed(),
+          name.blue(),
+          width = path.len() * 2
+        );
       }
 
       for item in items.borrow().iter() {
@@ -91,10 +93,7 @@ pub(crate) fn print(path: &mut Vec<String>, item: &Rc<Item>) {
     Item::File(name) => {
       path.push(String::new());
 
-      for _ in 1..path.len() {
-        print!("  ");
-      }
-      println!("{} {}", "»".bold(), name);
+      println!("{: >width$} {}", "»".bold(), name, width = path.len() * 2);
     }
   }
 

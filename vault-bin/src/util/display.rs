@@ -42,12 +42,12 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
     .collect();
 
   for (key, value) in attributes {
-    print!("  ");
-    for _ in 0..=(length.get() - key.len()) {
-      print!(" ");
-    }
-
-    println!("{} = {}", key.bold(), value);
+    println!(
+      "{: >width$} = {}",
+      key.bold(),
+      value,
+      width = length.get() + 2
+    );
   }
 }
 
