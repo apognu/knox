@@ -60,8 +60,17 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     match entry.get_attributes().get(name[0]) {
       Some(attribute) => {
+        let value = match display::get_attribute_value(attribute) {
+          display::AttributeValue::String(string) => string,
+          display::AttributeValue::Bytes(_) => {
+            return Err(VaultError::throw(
+              "attribute is binary, cannot copy to clipboard",
+            ))
+          }
+        };
+
         let mut clip: ClipboardContext = ClipboardProvider::new()?;
-        clip.set_contents(attribute.value.clone())?;
+        clip.set_contents(value)?;
 
         info!(
           "the content of the '{}' attribute was copied into your clipboard for 5 seconds",
@@ -84,7 +93,14 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     if args.is_present("stdout") {
       match args.value_of("attribute") {
         Some(attribute) => match entry.get_attributes().get(attribute) {
-          Some(attribute) => println!("{}", display::get_attribute_value(attribute)),
+          Some(attribute) => match display::get_attribute_value(attribute) {
+            display::AttributeValue::String(string) => println!("{}", string),
+            display::AttributeValue::Bytes(_) => {
+              return Err(VaultError::throw(
+                "attribute is binary, cannot print to console",
+              ))
+            }
+          },
           None => {
             return Err(VaultError::throw(
               "the requested attribute does not exist in the entry",
