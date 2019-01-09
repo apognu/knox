@@ -9,17 +9,28 @@ use log::*;
 use crate::util::{display, hierarchy, vault_path};
 use vault::prelude::*;
 
-pub(crate) fn list(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+  let path = args.value_of("path");
   let handle = VaultHandle::open(vault_path()?)?;
   if handle.vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
   }
 
-  let list = hierarchy::build(&handle.vault);
+  let list = hierarchy::build(&handle.vault, path);
 
-  println!("🔒 Vault store:");
-  hierarchy::print(&mut vec![], &list);
+  match list {
+    Some(list) => {
+      println!("🔒 Vault store:");
+      hierarchy::print(&mut vec![], &list);
+    }
+    None => {
+      return Err(VaultError::throw(&format!(
+        "the directory {} was not found in the vault",
+        path.unwrap().bold()
+      )))
+    }
+  }
 
   Ok(())
 }

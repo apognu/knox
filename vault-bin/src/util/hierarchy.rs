@@ -11,15 +11,23 @@ pub(crate) enum Item {
   File(String),
 }
 
-pub(crate) fn build(paths: &Vault) -> Rc<Item> {
+pub(crate) fn build(paths: &Vault, prefix: Option<&str>) -> Option<Rc<Item>> {
   let root = Rc::new(Item::Directory("/".to_string(), RefCell::new(Vec::new())));
   let mut index: HashMap<String, Rc<Item>> = HashMap::new();
 
   let mut paths: Vec<Vec<&str>> = paths
     .get_index()
     .keys()
+    .filter(|item| match prefix {
+      None => true,
+      Some(prefix) => item.starts_with(&format!("{}/", prefix)),
+    })
     .map(|path| path.split('/').collect::<Vec<&str>>())
     .collect();
+
+  if paths.is_empty() {
+    return None;
+  }
 
   paths.sort();
 
@@ -58,7 +66,7 @@ pub(crate) fn build(paths: &Vault) -> Rc<Item> {
     }
   }
 
-  root
+  Some(root)
 }
 
 pub(crate) fn print(path: &mut Vec<String>, item: &Rc<Item>) {
@@ -140,6 +148,6 @@ mod tests {
       ]),
     ));
 
-    assert_eq!(expected, super::build(&vault));
+    assert_eq!(Some(expected), super::build(&vault, None));
   }
 }

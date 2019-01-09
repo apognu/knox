@@ -90,6 +90,29 @@ Store » ssh » keys
    pubkey = <file content>
 ```
 
+## List secrets
+
+```
+$ vault list
+🔒 Vault store:
+  » one
+  » two
+  / subdir1
+    / subdir2
+      » secret1
+      » secret2
+      » secret3
+      » secret4
+  $ vault list subdir1/subdir2
+🔒 Vault store:
+  / subdir1
+    / subdir2
+      » secret1
+      » secret2
+      » secret3
+      » secret4
+```
+
 ## Print a secret
 
 ```
