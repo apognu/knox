@@ -24,7 +24,7 @@ mod tests {
   use crate::prelude::*;
 
   #[test]
-  fn value() {
+  fn set_and_get_value() {
     let mut entry = Entry::default();
     entry.add_attribute("standard", "lorem");
     entry.add_confidential_attribute("confidential", "ipsum");

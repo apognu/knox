@@ -65,8 +65,8 @@ mod tests {
 
   #[test]
   fn hash_path() {
-    let result = super::hash_path(Some(&"test".to_string()));
-
-    assert_eq!(result, "test");
+    assert_eq!(super::hash_path(Some(&"test".to_string())), "test");
+    assert_eq!(super::hash_path(None).len(), 39);
+    assert_ne!(super::hash_path(None), super::hash_path(None));
   }
 }

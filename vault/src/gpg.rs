@@ -52,6 +52,40 @@ where
 #[cfg(test)]
 mod tests {
   #[test]
+  fn get_context() {
+    assert_eq!(super::get_context().is_ok(), true);
+  }
+
+  #[test]
+  fn get_keys() {
+    let mut context = super::get_context().expect("could not get GPG context");
+
+    assert_eq!(
+      super::get_keys(&mut context, crate::spec::GPG_IDENTITY).is_ok(),
+      true
+    );
+
+    let keys = super::get_keys(&mut context, crate::spec::GPG_IDENTITY).expect("could not get key");
+
+    assert_eq!(keys.len(), 1);
+    assert_eq!(keys[0].has_secret(), true);
+
+    assert_eq!(
+      keys[0].fingerprint(),
+      Ok("AFD67570A1A7134F91D90EA7381C89FBA2E0D920")
+    );
+
+    assert_eq!(
+      keys[0]
+        .user_ids()
+        .filter(|id| id.email() == Ok(crate::spec::GPG_IDENTITY))
+        .collect::<Vec<gpgme::keys::UserId>>()
+        .is_empty(),
+      false
+    );
+  }
+
+  #[test]
   fn encrypt_and_decrypt() {
     let tmp = crate::spec::setup();
     let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
