@@ -60,9 +60,9 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     match entry.get_attributes().get(name[0]) {
       Some(attribute) => {
-        let value = match display::get_attribute_value(attribute) {
-          display::AttributeValue::String(string) => string,
-          display::AttributeValue::Bytes(_) => {
+        let value = match attribute.value() {
+          AttributeValue::String(string) => string,
+          AttributeValue::Binary(_) => {
             return Err(VaultError::throw(
               "attribute is binary, cannot copy to clipboard",
             ))
@@ -93,9 +93,9 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     if args.is_present("stdout") {
       match args.value_of("attribute") {
         Some(attribute) => match entry.get_attributes().get(attribute) {
-          Some(attribute) => match display::get_attribute_value(attribute) {
-            display::AttributeValue::String(string) => println!("{}", string),
-            display::AttributeValue::Bytes(_) => {
+          Some(attribute) => match attribute.value() {
+            AttributeValue::String(string) => println!("{}", string),
+            AttributeValue::Binary(_) => {
               return Err(VaultError::throw(
                 "attribute is binary, cannot print to console",
               ))

@@ -38,6 +38,20 @@ impl Entry {
 
     self.attributes.insert(key.to_string(), attribute);
   }
+
+  pub fn add_file_attribute(&mut self, key: &str, value: &[u8]) {
+    let mut attribute = Attribute {
+      file: true,
+      ..Attribute::default()
+    };
+
+    match String::from_utf8(value.to_vec()) {
+      Ok(_) => attribute.bytes_value = value.to_vec(),
+      Err(_) => attribute.bytes_value = value.to_vec(),
+    }
+
+    self.attributes.insert(key.to_string(), attribute);
+  }
 }
 
 #[cfg(test)]

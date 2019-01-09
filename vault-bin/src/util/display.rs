@@ -87,27 +87,11 @@ where
       .write(true)
       .open(format!("{}/{}", &dir, key))?;
 
-    match get_attribute_value(attribute) {
+    match attribute.value() {
       AttributeValue::String(string) => file.write_all(string.as_bytes())?,
-      AttributeValue::Bytes(bytes) => file.write_all(&bytes)?,
+      AttributeValue::Binary(bytes) => file.write_all(&bytes)?,
     }
   }
 
   Ok(())
-}
-
-pub(crate) enum AttributeValue {
-  String(String),
-  Bytes(Vec<u8>),
-}
-
-pub(crate) fn get_attribute_value(attribute: &Attribute) -> AttributeValue {
-  if attribute.file {
-    match String::from_utf8(attribute.bytes_value.clone()) {
-      Ok(string) => AttributeValue::String(string),
-      Err(_) => AttributeValue::Bytes(attribute.bytes_value.clone()),
-    }
-  } else {
-    AttributeValue::String(attribute.value.clone())
-  }
 }

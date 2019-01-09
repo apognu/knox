@@ -174,3 +174,34 @@ $ vault rename my/first/secret new/location/secret
 $ vault delete dir/subdir/website.com
  INFO  vault::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
 ```
+
+# As a library
+
+The library contained in ```vault``` can be used by your program to access and manipulate a vault (documentation pending). For example:
+
+```
+# Cargo.toml
+# [dependencies]
+# vault = { git = "https://github.com/apognu/vault.rs" }
+#
+# main.rs
+
+use vault::prelude::*;
+
+fn main() -> Result<(), Box<dyn Error>> {
+  let handle = VaultHandle::open("/home/user/.vault")?;
+  let entry = handle.read_entry("personal/websites/site-a")?;
+  let attributes = entry
+      .attributes
+      .iter()
+      .filter(|(_, attribute)| !attribute.confidential);
+
+  for (key, attribute) in attributes {
+      if let AttributeValue::String(value) = attribute.value() {
+          println!("{} = {}", key, value);
+      }
+  }
+
+  Ok(())
+}
+```
