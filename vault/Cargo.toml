@@ -12,13 +12,6 @@ protoc-rust = "2.0"
 tempfile = "^3.0"
 
 [dependencies]
-log = "^0.4"
-pretty_env_logger = "^0.2"
-clap = { version = "^2.0", features = ["yaml"] }
-rand = "^0.6"
 protobuf = "^2.2"
 gpgme = "^0.8"
-rpassword = "2.1.0"
-colored = "1.6"
-clipboard = "^0.5"
-uuid = { version = "0.7", features = ["v4"] }
+uuid = { version = "^0.7", features = ["v4"] }
