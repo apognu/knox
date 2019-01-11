@@ -1,7 +1,11 @@
 [package]
 name = "vault-bin"
 version = "0.1.0"
+description = "secret vault encrypted with GPG"
 authors = ["Antoine POPINEAU <antoine.popineau@appscho.com>"]
+repository = "https://github.com/apognu/vault.rs"
+license = "MIT"
+
 edition = "2018"
 workspace = "../"
 
