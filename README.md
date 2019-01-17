@@ -17,6 +17,7 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
    * [Print a secret](#print-a-secret)
    * [Edit a secret](#edit-a-secret)
    * [Delete a secret](#delete-a-secret)
+   * [Check if you've been pwned](#check-if-youve-been-pwned)
 
 ## Architecture
 
@@ -174,6 +175,20 @@ $ vault rename my/first/secret new/location/secret
 $ vault delete dir/subdir/website.com
  INFO  vault::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
 ```
+
+## Check if you've been pwned
+
+Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to check whether some of your passwords appear in a knowned data breach. For now, you can manually check every confidential attribute is a specific entry:
+
+```
+$ vault pwned my/super/password
+INFO  vault::commands::pwned > Pwnage status for attributes at pwned/test
+  ⚠ password -> PWNED
+  ✓ secure -> CLEAR
+  ⚠ apikey -> PWNED
+```
+
+In the future, we may implement a command to check your whole vault for breached secrets and check for pwnage at the moment of insertion.
 
 # As a library
 

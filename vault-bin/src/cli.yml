@@ -122,3 +122,11 @@ subcommands:
             help: Path to the entry
             required: true
 
+  - pwned:
+      about: Check if the confidential attributes in an entry have been pwned
+      args:
+        - path:
+            value_name: PATH
+            help: Path to the entry
+            required: true
+

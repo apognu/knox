@@ -29,6 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("edit", Some(args)) => commands::write::edit(args),
         ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
+        ("pwned", Some(args)) => commands::pwned::pwned(args),
         _ => {
             println!("{}", app.usage());
             process::exit(1);
