@@ -190,7 +190,15 @@ INFO  vault::commands::pwned > Pwnage status for attributes at pwned/test
 
 The check is also performed for confidential attributes when adding or editing an entry. You can bypass this behavior by using the ```-f``` / ```--force``` flag on those commands.
 
-In the future, we may implement a command to check your whole vault for breached secrets.
+You may also omit the ```PATH``` paramter to initiate a vault-wide check against the data breaches. This may take some time, but will check all confidential attributes in your vault:
+
+```
+INFO  vault::commands::pwned > checking for pwned secret across your vault
+  ⚠  test/insecure/test1/password -> PWNED
+  ⚠  test/insecure/test1/apikey -> PWNED
+  ⚠  test/insecure/test2/password -> PWNED
+██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 53/70
+```
 
 # As a library
 

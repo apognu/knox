@@ -135,6 +135,5 @@ subcommands:
       args:
         - path:
             value_name: PATH
-            help: Path to the entry
-            required: true
+            help: Path to the entry. If missing, checks the whole vault
 
