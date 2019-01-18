@@ -200,7 +200,7 @@ INFO  vault::commands::pwned > checking for pwned secret across your vault
 ██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 53/70
 ```
 
-# As a library
+## As a library
 
 The library contained in ```vault``` can be used by your program to access and manipulate a vault (documentation pending). For example:
 

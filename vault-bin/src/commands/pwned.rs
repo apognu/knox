@@ -67,10 +67,11 @@ fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         if let AttributeValue::String(value) = attribute.value() {
           if let PwnedResult::Pwned = check(&value) {
             progress.println(format!(
-              "  {}  {}/{} -> PWNED",
+              "  {}  {}/{} -> {}",
               "⚠".red(),
               path.bold(),
-              name.dimmed()
+              name.dimmed(),
+              "PWNED".red()
             ));
           }
         }
