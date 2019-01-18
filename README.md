@@ -188,7 +188,9 @@ INFO  vault::commands::pwned > Pwnage status for attributes at pwned/test
   ⚠ apikey -> PWNED
 ```
 
-In the future, we may implement a command to check your whole vault for breached secrets and check for pwnage at the moment of insertion.
+The check is also performed for confidential attributes when adding or editing an entry. You can bypass this behavior by using the ```-f``` / ```--force``` flag on those commands.
+
+In the future, we may implement a command to check your whole vault for breached secrets.
 
 # As a library
 

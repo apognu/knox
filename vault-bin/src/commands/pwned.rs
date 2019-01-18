@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::error::Error;
 
 use colored::*;
@@ -8,7 +9,7 @@ use vault::prelude::*;
 use crate::util::vault_path;
 
 #[derive(PartialEq, Debug)]
-enum PwnedResult {
+pub(crate) enum PwnedResult {
   Clear,
   Pwned,
   Error,
@@ -19,18 +20,11 @@ pub(crate) fn pwned(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
   let entry = vault.read_entry(path)?;
 
-  let result = entry
-    .attributes
-    .iter()
-    .filter(|(_, attribute)| attribute.confidential && !attribute.file)
-    .flat_map(|(name, attribute)| match attribute.value() {
-      AttributeValue::String(value) => Some((name, is_pwned(&value))),
-      _ => None,
-    });
+  let pwnage = check_attributes(&entry.attributes);
 
   info!("Pwnage status for attributes at {}", path.bold());
 
-  for (name, attribute) in result {
+  for (name, attribute) in pwnage {
     match attribute {
       PwnedResult::Error => println!(
         "  {} {} -> {} (could not retrieve result)",
@@ -51,7 +45,20 @@ pub(crate) fn pwned(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-fn is_pwned(value: &str) -> PwnedResult {
+pub(crate) fn check_attributes(
+  attributes: &HashMap<String, Attribute>,
+) -> Vec<(String, PwnedResult)> {
+  attributes
+    .iter()
+    .filter(|(_, attribute)| attribute.confidential && !attribute.file)
+    .flat_map(|(name, attribute)| match attribute.value() {
+      AttributeValue::String(value) => Some((name.to_string(), check(&value))),
+      _ => None,
+    })
+    .collect()
+}
+
+fn check(value: &str) -> PwnedResult {
   let mut hasher = Sha1::default();
   hasher.input(value);
 
@@ -93,8 +100,8 @@ mod tests {
   use rand::{distributions::Alphanumeric, Rng};
 
   #[test]
-  fn is_pwned() {
-    assert_eq!(super::is_pwned("azerty"), PwnedResult::Pwned);
+  fn check() {
+    assert_eq!(super::check("azerty"), PwnedResult::Pwned);
 
     let secure = rand::thread_rng()
       .sample_iter(&Alphanumeric)
@@ -102,6 +109,6 @@ mod tests {
       .collect::<String>();
 
     // Dangerous, this could fail CI if random string is actually pwned
-    assert_eq!(super::is_pwned(&secure), PwnedResult::Clear);
+    assert_eq!(super::check(&secure), PwnedResult::Clear);
   }
 }

@@ -73,6 +73,10 @@ subcommands:
             required: true
             multiple: true
             min_values: 1
+        - force:
+            long: force
+            short: f
+            help: Force creation of the entry, bypassing safeguards
   
   - edit:
       about: Edit an entry from the vault
@@ -101,6 +105,10 @@ subcommands:
             help: Attribute to delete from the entry
             multiple: true
             number_of_values: 1
+        - force:
+            long: force
+            short: f
+            help: Force creation of the entry, bypassing safeguards
 
   - rename:
       about: Rename an entry

@@ -4,6 +4,7 @@ use colored::*;
 use log::*;
 use vault::prelude::*;
 
+use crate::commands::pwned::{self, PwnedResult};
 use crate::util::{self, vault_path};
 
 pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
@@ -15,6 +16,22 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   let attributes = util::attributes::build(args)?;
+  let pwnage = pwned::check_attributes(&attributes);
+  let mut abort = false;
+
+  for pwn in pwnage.iter() {
+    if let (name, PwnedResult::Pwned) = pwn {
+      warn!(
+        "the value for {} has been found in HIBP's data breaches",
+        name.bold()
+      );
+      abort = true
+    }
+  }
+
+  if abort && !args.is_present("force") {
+    return Err(VaultError::throw("aborting because some confidential attributes were breached in Have I Been Pwned, use --force to override"));
+  }
 
   let entry = Entry {
     attributes,
@@ -37,6 +54,23 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   if !handle.vault.get_index().contains_key(path) {
     return Err(VaultError::throw("no entry was found at this path"));
+  }
+
+  let pwnage = pwned::check_attributes(&attributes);
+  let mut abort = false;
+
+  for pwn in pwnage.iter() {
+    if let (name, PwnedResult::Pwned) = pwn {
+      warn!(
+        "the value for {} has been found in HIBP's data breaches",
+        name.bold()
+      );
+      abort = true
+    }
+  }
+
+  if abort && !args.is_present("force") {
+    return Err(VaultError::throw("aborting because some confidential attributes were breached in Have I Been Pwned, use --force to override"));
   }
 
   let mut entry = handle.read_entry(&path)?;
