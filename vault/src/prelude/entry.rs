@@ -4,13 +4,13 @@ use std::path::Path;
 
 use protobuf::parse_from_bytes;
 
-use super::VaultHandle;
+use super::VaultContext;
 use crate::gpg;
 use crate::pb::*;
 use crate::util;
 
 impl Entry {
-  pub fn read<P>(handle: &VaultHandle, path: P) -> Result<Entry, Box<dyn Error>>
+  pub fn read<P>(handle: &VaultContext, path: P) -> Result<Entry, Box<dyn Error>>
   where
     P: AsRef<Path>,
   {
@@ -56,22 +56,24 @@ impl Entry {
 
 #[cfg(test)]
 mod tests {
+  use vault_testing::spec;
+
   use crate::prelude::*;
 
   #[test]
   fn read() {
-    let tmp = crate::spec::setup();
-    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     let mut entry = Entry::default();
     entry.add_attribute("lorem", "ipsum");
     entry.add_attribute("foo", "bar");
 
-    handle
+    context
       .write_entry("pack.bin", &entry)
       .expect("could not write pack");
 
-    let retrieved = handle.read_entry("pack.bin").expect("could not read pack");
+    let retrieved = context.read_entry("pack.bin").expect("could not read pack");
 
     assert_eq!(retrieved, entry);
   }

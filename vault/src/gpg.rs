@@ -13,9 +13,12 @@ pub(crate) fn get_context() -> Result<Context, Box<dyn Error>> {
   Ok(context)
 }
 
-pub(crate) fn get_keys(context: &mut Context, identity: &str) -> Result<Vec<Key>, Box<dyn Error>> {
+pub(crate) fn get_keys(
+  context: &mut Context,
+  identities: &[String],
+) -> Result<Vec<Key>, Box<dyn Error>> {
   let keys: Vec<Key> = context
-    .find_secret_keys(vec![identity])?
+    .find_keys(identities)?
     .filter_map(|k| k.ok())
     .filter(|k| k.can_encrypt())
     .collect();
@@ -24,17 +27,25 @@ pub(crate) fn get_keys(context: &mut Context, identity: &str) -> Result<Vec<Key>
     Ok(keys)
   } else {
     Err(VaultError::throw(
-      "no private key was found for provided identity",
+      "no public key was found for provided identity",
     ))
   }
 }
 
 pub(crate) fn encrypt(vault: &pb::Vault, object: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
   let mut context = get_context()?;
-  let keys = get_keys(&mut context, vault.get_identity())?;
+  let keys = get_keys(&mut context, vault.get_identities())?;
+
+  if keys.len() != vault.get_identities().len() {
+    return Err(VaultError::throw(
+      "could not retrieve the public keys for all provided identities",
+    ));
+  }
 
   let mut output = Vec::new();
-  context.encrypt(&keys, object, &mut output)?;
+  context
+    .encrypt(&keys, object, &mut output)
+    .map_err(|err| return VaultError::throw(&err.description()))?;
 
   Ok(output)
 }
@@ -44,13 +55,17 @@ where
   T: IntoData<'a>,
 {
   let mut output = Vec::new();
-  get_context()?.decrypt(data, &mut output)?;
+  get_context()?
+    .decrypt(data, &mut output)
+    .map_err(|err| return VaultError::throw(&err.description()))?;
 
   Ok(output)
 }
 
 #[cfg(test)]
 mod tests {
+  use vault_testing::spec;
+
   #[test]
   fn get_context() {
     assert_eq!(super::get_context().is_ok(), true);
@@ -58,27 +73,28 @@ mod tests {
 
   #[test]
   fn get_keys() {
+    spec::setup();
     let mut context = super::get_context().expect("could not get GPG context");
 
     assert_eq!(
-      super::get_keys(&mut context, crate::spec::GPG_IDENTITY).is_ok(),
+      super::get_keys(&mut context, &spec::get_test_identities()).is_ok(),
       true
     );
 
-    let keys = super::get_keys(&mut context, crate::spec::GPG_IDENTITY).expect("could not get key");
+    let keys =
+      super::get_keys(&mut context, &spec::get_test_identities()).expect("could not get key");
 
     assert_eq!(keys.len(), 1);
-    assert_eq!(keys[0].has_secret(), true);
 
     assert_eq!(
       keys[0].fingerprint(),
-      Ok("AFD67570A1A7134F91D90EA7381C89FBA2E0D920")
+      Ok("6A25FCF213C7779AD26DC50706CB643B42E7CD3E")
     );
 
     assert_eq!(
       keys[0]
         .user_ids()
-        .filter(|id| id.email() == Ok(crate::spec::GPG_IDENTITY))
+        .filter(|id| id.email() == Ok(spec::GPG_IDENTITY))
         .collect::<Vec<gpgme::keys::UserId>>()
         .is_empty(),
       false
@@ -87,11 +103,11 @@ mod tests {
 
   #[test]
   fn encrypt_and_decrypt() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     let data = "foobarhelloworld".as_bytes();
-    let ciphertext = super::encrypt(&handle.vault, data).expect("could not encrypt data");
+    let ciphertext = super::encrypt(&context.vault, data).expect("could not encrypt data");
 
     assert_eq!(
       data.to_vec(),

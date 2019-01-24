@@ -25,7 +25,7 @@ pub(crate) fn pwned(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = VaultHandle::open(vault_path()?)?;
+  let vault = VaultContext::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();
   let entry = vault.read_entry(path)?;
   let pwnage = check_attributes(&entry.attributes);
@@ -54,13 +54,13 @@ fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = VaultHandle::open(vault_path()?)?;
-  let progress = ProgressBar::new(vault.vault.get_index().len() as u64);
+  let context = VaultContext::open(vault_path()?)?;
+  let progress = ProgressBar::new(context.vault.get_index().len() as u64);
 
   info!("checking for pwned secret across your vault");
 
-  for path in vault.vault.get_index().keys() {
-    let entry = vault.read_entry(&path)?;
+  for path in context.vault.get_index().keys() {
+    let entry = context.read_entry(&path)?;
 
     for (name, attribute) in entry.attributes {
       if attribute.confidential && !attribute.file {

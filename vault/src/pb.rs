@@ -24,7 +24,7 @@ use protobuf::ProtobufEnum as ProtobufEnum_imported_for_functions;
 #[derive(PartialEq,Clone,Default)]
 pub struct Vault {
     // message fields
-    pub identity: ::std::string::String,
+    pub identities: ::protobuf::RepeatedField<::std::string::String>,
     pub index: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -36,30 +36,29 @@ impl Vault {
         ::std::default::Default::default()
     }
 
-    // string identity = 1;
+    // repeated string identities = 1;
 
-    pub fn clear_identity(&mut self) {
-        self.identity.clear();
+    pub fn clear_identities(&mut self) {
+        self.identities.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_identity(&mut self, v: ::std::string::String) {
-        self.identity = v;
+    pub fn set_identities(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+        self.identities = v;
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_identity(&mut self) -> &mut ::std::string::String {
-        &mut self.identity
+    pub fn mut_identities(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+        &mut self.identities
     }
 
     // Take field
-    pub fn take_identity(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.identity, ::std::string::String::new())
+    pub fn take_identities(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
+        ::std::mem::replace(&mut self.identities, ::protobuf::RepeatedField::new())
     }
 
-    pub fn get_identity(&self) -> &str {
-        &self.identity
+    pub fn get_identities(&self) -> &[::std::string::String] {
+        &self.identities
     }
 
     // repeated .Vault.IndexEntry index = 2;
@@ -98,7 +97,7 @@ impl ::protobuf::Message for Vault {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.identity)?;
+                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.identities)?;
                 },
                 2 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(wire_type, is, &mut self.index)?;
@@ -115,9 +114,9 @@ impl ::protobuf::Message for Vault {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.identity.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.identity);
-        }
+        for value in &self.identities {
+            my_size += ::protobuf::rt::string_size(1, &value);
+        };
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(2, &self.index);
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -125,9 +124,9 @@ impl ::protobuf::Message for Vault {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
-        if !self.identity.is_empty() {
-            os.write_string(1, &self.identity)?;
-        }
+        for v in &self.identities {
+            os.write_string(1, &v)?;
+        };
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(2, &self.index, os)?;
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -171,10 +170,10 @@ impl ::protobuf::Message for Vault {
         unsafe {
             descriptor.get(|| {
                 let mut fields = ::std::vec::Vec::new();
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                    "identity",
-                    |m: &Vault| { &m.identity },
-                    |m: &mut Vault| { &mut m.identity },
+                fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                    "identities",
+                    |m: &Vault| { &m.identities },
+                    |m: &mut Vault| { &mut m.identities },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(
                     "index",
@@ -203,7 +202,7 @@ impl ::protobuf::Message for Vault {
 
 impl ::protobuf::Clear for Vault {
     fn clear(&mut self) {
-        self.clear_identity();
+        self.clear_identities();
         self.clear_index();
         self.unknown_fields.clear();
     }
@@ -655,8 +654,8 @@ impl ::protobuf::reflect::ProtobufValue for Attribute {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x08pb.proto\"\x86\x01\n\x05Vault\x12\x1a\n\x08identity\x18\x01\x20\
-    \x01(\tR\x08identity\x12'\n\x05index\x18\x02\x20\x03(\x0b2\x11.Vault.Ind\
+    \n\x08pb.proto\"\x8a\x01\n\x05Vault\x12\x1e\n\nidentities\x18\x01\x20\
+    \x03(\tR\nidentities\x12'\n\x05index\x18\x02\x20\x03(\x0b2\x11.Vault.Ind\
     exEntryR\x05index\x1a8\n\nIndexEntry\x12\x10\n\x03key\x18\x01\x20\x01(\t\
     R\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"\x8a\
     \x01\n\x05Entry\x126\n\nattributes\x18\x01\x20\x03(\x0b2\x16.Entry.Attri\

@@ -1,5 +1,6 @@
 [workspace]
 members = [
   "vault",
-  "vault-bin"
+  "vault-bin",
+  "vault-testing"
 ]

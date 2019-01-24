@@ -8,11 +8,11 @@ use crate::prelude::*;
 
 pub(crate) const METADATA_FILE: &str = "_vault.meta";
 
-pub(crate) fn create_parents<T>(handle: &VaultHandle, path: &T) -> Result<(), Box<dyn Error>>
+pub(crate) fn create_parents<T>(context: &VaultContext, path: &T) -> Result<(), Box<dyn Error>>
 where
   T: AsRef<Path>,
 {
-  let path = normalize_path(handle, path);
+  let path = normalize_path(context, path);
   let mut path = path.split('/').collect::<Vec<&str>>();
   path.pop();
 
@@ -21,11 +21,11 @@ where
   Ok(())
 }
 
-pub(crate) fn normalize_path<T>(handle: &VaultHandle, path: &T) -> String
+pub(crate) fn normalize_path<T>(context: &VaultContext, path: &T) -> String
 where
   T: AsRef<Path>,
 {
-  format!("{}/{}", handle.path, path.as_ref().display())
+  format!("{}/{}", context.path, path.as_ref().display())
 }
 
 pub(crate) fn hash_path(salt: Option<&String>) -> String {
@@ -41,24 +41,26 @@ pub(crate) fn hash_path(salt: Option<&String>) -> String {
 
 #[cfg(test)]
 mod tests {
+  use vault_testing::spec;
+
   #[test]
   fn create_parents() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    super::create_parents(&handle, &"foo/bar/lorem/ipsum").expect("could not create directories");
+    super::create_parents(&context, &"foo/bar/lorem/ipsum").expect("could not create directories");
 
-    assert_eq!(handle.has_pack("foo/bar/lorem"), true);
-    assert_eq!(handle.has_pack("hello/world"), false);
+    assert_eq!(context.has_pack("foo/bar/lorem"), true);
+    assert_eq!(context.has_pack("hello/world"), false);
   }
 
   #[test]
   fn normalize_path() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     assert_eq!(
-      super::normalize_path(&handle, &"lorem/ipsum"),
+      super::normalize_path(&context, &"lorem/ipsum"),
       format!("{}/{}", tmp.path().display(), "lorem/ipsum"),
     );
   }

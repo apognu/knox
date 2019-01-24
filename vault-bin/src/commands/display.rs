@@ -11,13 +11,13 @@ use vault::prelude::*;
 
 pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path");
-  let handle = VaultHandle::open(vault_path()?)?;
-  if handle.vault.get_index().is_empty() {
+  let context = VaultContext::open(vault_path()?)?;
+  if context.vault.get_index().is_empty() {
     info!("the vault is empty");
     return Ok(());
   }
 
-  let list = hierarchy::build(&handle.vault, path);
+  let list = hierarchy::build(&context.vault, path);
 
   match list {
     Some(list) => {
@@ -36,7 +36,7 @@ pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let vault = VaultHandle::open(vault_path()?)?;
+  let vault = VaultContext::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();
 
   let print = args.is_present("print");

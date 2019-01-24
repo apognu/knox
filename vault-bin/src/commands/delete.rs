@@ -8,7 +8,7 @@ use vault::prelude::*;
 use crate::util::vault_path;
 
 pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let mut vault = VaultHandle::open(vault_path()?)?;
+  let mut vault = VaultContext::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();
 
   vault.delete_entry(path)?;
@@ -27,16 +27,17 @@ mod tests {
   use clap::App;
 
   use vault::prelude::*;
+  use vault_testing::spec;
 
   #[test]
   fn delete() {
-    let tmp = crate::spec::setup();
-    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     let mut entry = Entry::default();
     entry.add_attribute("apikey", "abcdef");
 
-    handle
+    context
       .write_entry("foo/bar", &entry)
       .expect("could not write entry");
 
@@ -46,7 +47,7 @@ mod tests {
     if let ("delete", Some(args)) = app.subcommand() {
       assert_eq!(super::delete(args).is_ok(), true);
 
-      let vault = VaultHandle::open(tmp.path()).expect("could not open vault");
+      let vault = VaultContext::open(tmp.path()).expect("could not open vault");
 
       assert_eq!(vault.read_entry("foo/bar").is_err(), true);
 

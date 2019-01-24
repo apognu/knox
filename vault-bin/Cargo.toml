@@ -14,8 +14,7 @@ name = "vault"
 path = "src/main.rs"
 
 [dev-dependencies]
-tempfile = "^3.0"
-gpgme = "^0.8"
+vault_testing = { path = "../vault-testing" }
 
 [dependencies]
 vault = { path = "../vault" }

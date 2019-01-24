@@ -8,10 +8,14 @@ use vault::prelude::*;
 use crate::util::vault_path;
 
 pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
-  let identity = args.value_of("identity").unwrap();
   let path = vault_path()?;
+  let identities: Vec<String> = args
+    .values_of("identity")
+    .unwrap()
+    .map(|s| s.to_string())
+    .collect();
 
-  VaultHandle::create(&path, identity)?.write()?;
+  VaultContext::create(&path, &identities)?.write()?;
 
   info!("vault initialized successfully at {}", path.bold());
 
@@ -23,21 +27,25 @@ mod tests {
   use clap::App;
 
   use vault::prelude::*;
+  use vault_testing::spec;
 
   #[test]
   fn init() {
-    let tmp = crate::spec::setup();
+    let tmp = spec::setup();
 
     let yml = load_yaml!("../cli.yml");
-    let app = App::from_yaml(yml).get_matches_from(vec!["", "init", crate::spec::GPG_IDENTITY]);
+    let app = App::from_yaml(yml).get_matches_from(vec!["", "init", spec::GPG_IDENTITY]);
 
     if let ("init", Some(args)) = app.subcommand() {
       assert_eq!(super::init(args).is_ok(), true);
       assert_eq!(super::init(args).is_err(), true);
 
-      let handle = VaultHandle::open(tmp.path()).expect("could not get vault metadata");
+      let context = VaultContext::open(tmp.path()).expect("could not get vault metadata");
 
-      assert_eq!(handle.vault.get_identity(), "vault@apognu.github.com");
+      assert_eq!(
+        context.vault.get_identities(),
+        &["vault-test@apognu.github.com".to_string()]
+      );
 
       return;
     }

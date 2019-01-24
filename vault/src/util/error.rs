@@ -33,3 +33,9 @@ impl<'a> Error for VaultError {
     None
   }
 }
+
+impl From<gpgme::Error> for VaultError {
+  fn from(err: gpgme::Error) -> Self {
+    Self::new(&err.description())
+  }
+}

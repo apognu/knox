@@ -11,6 +11,7 @@ subcommands:
             value_name: GPG_IDENTITY
             help: Email address of your GPG identity
             required: true
+            multiple: true
   
   - list:
       about: List all entries in the vault
@@ -18,6 +19,34 @@ subcommands:
         - path:
             value_name: PATH
             help: Only list entries in this prefix
+
+  - info:
+      about: Display general information on your vault
+
+  - identities:
+      subcommands:
+        - add:
+            about: Add an identity to the vault (needs all identities' public keys)
+            args:
+              - identity:
+                  value_name: GPG_IDENTITY
+                  help: Email address of your GPG identity
+                  required: true
+              - force:
+                  short: f
+                  long: force
+                  help: Force re-encryption of all entries, making sure this identity is included
+        - delete:
+            about: Remove an identity from the vault (needs all remaining public keys)
+            args:
+              - identity:
+                  value_name: GPG_IDENTITY
+                  help: Email address of the GPG identity to delete
+                  required: true
+              - force:
+                  short: f
+                  long: force
+                  help: Force re-encryption of all entries, making sure this identity is removed
   
   - show:
       about: Display an entry's content

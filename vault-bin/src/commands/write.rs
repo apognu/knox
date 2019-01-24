@@ -9,9 +9,9 @@ use crate::util::{self, vault_path};
 
 pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
-  let mut handle = VaultHandle::open(vault_path()?)?;
+  let mut context = VaultContext::open(vault_path()?)?;
 
-  if handle.vault.get_index().contains_key(path) {
+  if context.vault.get_index().contains_key(path) {
     return Err(VaultError::throw("an entry already exists at this path"));
   }
 
@@ -38,7 +38,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     ..Entry::default()
   };
 
-  handle.write_entry(&path, &entry)?;
+  context.write_entry(&path, &entry)?;
 
   info!("entry {} was successfully added to the vault", path.bold());
 
@@ -50,9 +50,9 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let attributes = util::attributes::build(args)?;
   let delete_attributes = args.values_of("delete");
 
-  let mut handle = VaultHandle::open(vault_path()?)?;
+  let mut context = VaultContext::open(vault_path()?)?;
 
-  if !handle.vault.get_index().contains_key(path) {
+  if !context.vault.get_index().contains_key(path) {
     return Err(VaultError::throw("no entry was found at this path"));
   }
 
@@ -73,7 +73,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     return Err(VaultError::throw("aborting because some confidential attributes were breached in Have I Been Pwned, use --force to override"));
   }
 
-  let mut entry = handle.read_entry(&path)?;
+  let mut entry = context.read_entry(&path)?;
 
   entry.mut_attributes().extend(attributes);
   if let Some(delete_attributes) = delete_attributes {
@@ -82,7 +82,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     }
   }
 
-  handle.write_entry(&path, &entry)?;
+  context.write_entry(&path, &entry)?;
 
   info!("entry {} was successfully edited", path.bold());
 
@@ -92,22 +92,22 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let source = args.value_of("source").unwrap();
   let destination = args.value_of("destination").unwrap();
-  let mut handle = VaultHandle::open(vault_path()?)?;
+  let mut context = VaultContext::open(vault_path()?)?;
 
-  if !handle.vault.get_index().contains_key(source) {
+  if !context.vault.get_index().contains_key(source) {
     return Err(VaultError::throw("no entry was found at this path"));
   }
-  if handle.vault.get_index().contains_key(destination) {
+  if context.vault.get_index().contains_key(destination) {
     return Err(VaultError::throw(
       "an entry already exists at this destination",
     ));
   }
 
-  let salt = handle.vault.get_index().get(source).unwrap().clone();
+  let salt = context.vault.get_index().get(source).unwrap().clone();
 
-  handle.add_index(destination, &salt);
-  handle.remove_index(source);
-  handle.write()?;
+  context.add_index(destination, &salt);
+  context.remove_index(source);
+  context.write()?;
 
   info!(
     "entry {} was successfully renamed to {}",
@@ -121,14 +121,16 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 #[cfg(test)]
 mod tests {
   use clap::App;
+
   use vault::prelude::*;
+  use vault_testing::spec;
 
   #[test]
   fn add() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    handle.write().expect("could not write tests vault");
+    context.write().expect("could not write tests vault");
 
     let yml = load_yaml!("../cli.yml");
     let app = App::from_yaml(yml).get_matches_from(vec![
@@ -143,8 +145,8 @@ mod tests {
       assert_eq!(super::add(args).is_ok(), true);
       assert_eq!(super::add(args).is_ok(), false);
 
-      let handle = VaultHandle::open(tmp.path()).expect("could not get vault");
-      let entry = handle
+      let context = VaultContext::open(tmp.path()).expect("could not get vault");
+      let entry = context
         .read_entry("foo/bar")
         .expect("could not read added entry");
 
@@ -174,7 +176,7 @@ mod tests {
 
   #[test]
   fn edit() {
-    let tmp = crate::spec::setup();
+    let tmp = spec::setup();
     let mut vault = crate::spec::get_test_vault(tmp.path()).expect("could not write tests vault");
 
     let mut entry = Entry::default();
@@ -198,7 +200,7 @@ mod tests {
     if let ("edit", Some(args)) = app.subcommand() {
       assert_eq!(super::edit(args).is_ok(), true);
 
-      let vault = VaultHandle::open(tmp.path()).expect("could not open vault");
+      let vault = VaultContext::open(tmp.path()).expect("could not open vault");
       let entry = vault.read_entry("foo/bar").expect("could not edited entry");
 
       assert_eq!(
@@ -227,7 +229,7 @@ mod tests {
 
   #[test]
   fn rename() {
-    let tmp = crate::spec::setup();
+    let tmp = spec::setup();
     let mut vault = crate::spec::get_test_vault(tmp.path()).expect("could not write tests vault");
 
     let mut entry = Entry::default();
@@ -245,7 +247,7 @@ mod tests {
     if let ("rename", Some(args)) = app.subcommand() {
       assert_eq!(super::rename(args).is_err(), true);
 
-      let retrieved = VaultHandle::open(tmp.path())
+      let retrieved = VaultContext::open(tmp.path())
         .expect("could not open vault")
         .read_entry("foo/bar")
         .expect("could not read entry");
@@ -260,7 +262,7 @@ mod tests {
     if let ("rename", Some(args)) = app.subcommand() {
       assert_eq!(super::rename(args).is_ok(), true);
 
-      let retrieved = VaultHandle::open(tmp.path())
+      let retrieved = VaultContext::open(tmp.path())
         .expect("could not open vault")
         .read_entry("lorem/ipsum")
         .expect("could not read entry");

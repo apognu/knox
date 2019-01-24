@@ -214,8 +214,8 @@ The library contained in ```vault``` can be used by your program to access and m
 use vault::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-  let handle = VaultHandle::open("/home/user/.vault")?;
-  let entry = handle.read_entry("personal/websites/site-a")?;
+  let context = VaultContext::open("/home/user/.vault")?;
+  let entry = context.read_entry("personal/websites/site-a")?;
   let attributes = entry
       .attributes
       .iter()

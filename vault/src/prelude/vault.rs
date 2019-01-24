@@ -10,13 +10,13 @@ use crate::gpg;
 use crate::pb::*;
 use crate::util::{self, VaultError};
 
-pub struct VaultHandle {
+pub struct VaultContext {
   pub path: String,
   pub vault: Vault,
 }
 
-impl VaultHandle {
-  pub fn create<P>(path: P, identity: &str) -> Result<Self, Box<dyn Error>>
+impl VaultContext {
+  pub fn create<P>(path: P, identities: &[String]) -> Result<Self, Box<dyn Error>>
   where
     P: AsRef<Path>,
   {
@@ -41,10 +41,8 @@ impl VaultHandle {
       }
     }
 
-    gpg::get_keys(&mut gpg::get_context()?, identity)?;
-
     let vault = Vault {
-      identity: identity.to_string(),
+      identities: protobuf::RepeatedField::from(identities),
       ..Vault::default()
     };
 
@@ -164,44 +162,46 @@ impl VaultHandle {
 
 #[cfg(test)]
 mod tests {
+  use vault_testing::spec;
+
   use crate::prelude::*;
   use crate::util;
 
   #[test]
   fn create() {
-    let tmp = crate::spec::setup();
+    let tmp = spec::setup();
 
-    VaultHandle::create(tmp.path(), crate::spec::GPG_IDENTITY)
+    VaultContext::create(tmp.path(), &spec::get_test_identities())
       .expect("could not create vault")
       .write()
       .expect("could not write metadata");
 
-    let handle = VaultHandle::open(&tmp.path()).expect("could not retrieve vault");
+    let context = VaultContext::open(&tmp.path()).expect("could not retrieve vault");
 
-    assert_eq!(crate::spec::GPG_IDENTITY, handle.vault.get_identity());
+    assert_eq!(spec::get_test_identities(), context.vault.get_identities());
   }
 
   #[test]
   fn read_and_write() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    handle.write().expect("could not write pack");
-    let retrieved = VaultHandle::open(tmp.path()).expect("could not read pack");
+    context.write().expect("could not write pack");
+    let retrieved = VaultContext::open(tmp.path()).expect("could not read pack");
 
-    assert_eq!(handle.vault, retrieved.vault);
+    assert_eq!(context.vault, retrieved.vault);
   }
 
   #[test]
   fn add_index() {
-    let tmp = crate::spec::setup();
-    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    handle.write().expect("could not write metadata");
-    handle.add_index("foo/bar", "lorem/ipsum");
-    handle.write().expect("could not write metadata");
+    context.write().expect("could not write metadata");
+    context.add_index("foo/bar", "lorem/ipsum");
+    context.write().expect("could not write metadata");
 
-    let retrieved = VaultHandle::open(tmp.path()).expect("coult not get vault");
+    let retrieved = VaultContext::open(tmp.path()).expect("coult not get vault");
 
     assert_eq!(
       "lorem/ipsum",
@@ -215,19 +215,19 @@ mod tests {
 
   #[test]
   fn remove_index() {
-    let tmp = crate::spec::setup();
-    let mut handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    handle
+    context
       .vault
       .mut_index()
       .insert("foo/bar".to_string(), "lorem/ipsum".to_string());
 
-    handle.write().expect("could not write metadata");
-    handle.remove_index("foo/bar");
-    handle.write().expect("could not write metadata");
+    context.write().expect("could not write metadata");
+    context.remove_index("foo/bar");
+    context.write().expect("could not write metadata");
 
-    let retrieved = VaultHandle::open(tmp.path()).expect("could not retrieve metadata");
+    let retrieved = VaultContext::open(tmp.path()).expect("could not retrieve metadata");
 
     assert_eq!(None, retrieved.vault.get_index().get("foo/bar"));
   }
@@ -244,25 +244,25 @@ mod tests {
 
   #[test]
   fn has_pack() {
-    let tmp = crate::spec::setup();
-    let handle = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    std::fs::File::create(util::normalize_path(&handle, &"test")).expect("could not create file");
+    std::fs::File::create(util::normalize_path(&context, &"test")).expect("could not create file");
 
-    assert_eq!(true, handle.has_pack("test"));
-    assert_eq!(false, handle.has_pack("foobar"));
+    assert_eq!(true, context.has_pack("test"));
+    assert_eq!(false, context.has_pack("foobar"));
   }
 
   #[test]
   fn read_and_write_entry() {
-    let tmp = crate::spec::setup();
+    let tmp = spec::setup();
     let mut vault = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
     let entry = Entry::default();
 
     assert_eq!(vault.write_entry("foo/bar", &entry).is_ok(), true);
 
-    let retrieved = VaultHandle::open(tmp.path())
+    let retrieved = VaultContext::open(tmp.path())
       .expect("could not read vault")
       .read_entry("foo/bar");
 
