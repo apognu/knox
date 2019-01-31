@@ -158,6 +158,24 @@ impl VaultContext {
   {
     Path::new(&util::normalize_path(self, &path)).exists()
   }
+
+  pub fn add_identity(&mut self, identity: &str) {
+    self.vault.mut_identities().push(identity.to_string());
+  }
+
+  pub fn remove_identity(&mut self, identity: &str) {
+    let identities = self
+      .vault
+      .identities
+      .iter()
+      .filter(|id| id != &identity)
+      .map(|id| id.to_owned())
+      .collect::<Vec<String>>();
+
+    self
+      .vault
+      .set_identities(protobuf::RepeatedField::from(identities))
+  }
 }
 
 #[cfg(test)]

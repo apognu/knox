@@ -45,7 +45,7 @@ pub(crate) fn encrypt(vault: &pb::Vault, object: &[u8]) -> Result<Vec<u8>, Box<d
   let mut output = Vec::new();
   context
     .encrypt(&keys, object, &mut output)
-    .map_err(|err| return VaultError::throw(&err.description()))?;
+    .map_err(|err| VaultError::throw(&err.description()))?;
 
   Ok(output)
 }
@@ -57,7 +57,7 @@ where
   let mut output = Vec::new();
   get_context()?
     .decrypt(data, &mut output)
-    .map_err(|err| return VaultError::throw(&err.description()))?;
+    .map_err(|err| VaultError::throw(&err.description()))?;
 
   Ok(output)
 }

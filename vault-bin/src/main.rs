@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("identities", Some(args)) => match args.subcommand() {
             ("add", Some(args)) => commands::identities::add(args),
             ("delete", Some(args)) => commands::identities::delete(args),
-            _ => usage(app),
+            _ => usage(&app),
         },
         ("list", Some(args)) => commands::display::list(args),
         ("show", Some(args)) => commands::display::show(args),
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
         ("pwned", Some(args)) => commands::pwned::pwned(args),
-        _ => usage(app),
+        _ => usage(&app),
     };
 
     if let Err(error) = result {
@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn usage(app: ArgMatches) -> ! {
+fn usage(app: &ArgMatches) -> ! {
     println!("{}", app.usage());
     process::exit(1);
 }
