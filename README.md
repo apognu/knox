@@ -15,7 +15,7 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
      * [Confidentials attributes](#confidentials-attributes)
      * [File attribute](#file-attributes)
    * [List secrets](#list-secrets)
-   * [Secret for secrets](#search-for-secrets)
+   * [Search for secrets](#search-for-secrets)
    * [Print a secret](#print-a-secret)
    * [Edit a secret](#edit-a-secret)
    * [Delete a secret](#delete-a-secret)
