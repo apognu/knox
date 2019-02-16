@@ -11,6 +11,17 @@ pub(crate) enum Item {
   File(String),
 }
 
+pub(crate) fn search(vault: &Vault, term: &str) -> Vec<String> {
+  let paths: Vec<String> = vault
+    .get_index()
+    .keys()
+    .filter(|item| item.contains(term))
+    .map(|path| path.clone())
+    .collect();
+
+  return paths;
+}
+
 pub(crate) fn build(paths: &Vault, prefix: Option<&str>) -> Option<Rc<Item>> {
   let root = Rc::new(Item::Directory("/".to_string(), RefCell::new(Vec::new())));
   let mut index: HashMap<String, Rc<Item>> = HashMap::new();

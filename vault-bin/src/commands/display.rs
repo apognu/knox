@@ -35,6 +35,30 @@ pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
+pub(crate) fn search(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+  let context = VaultContext::open(vault_path()?)?;
+  let term = args.value_of("term").unwrap();
+
+  let list = hierarchy::search(&context.vault, term);
+
+  match list.len() {
+    0 => info!("the term you searched for was not found in the vault"),
+    _ => {
+      println!("🔒 Vault store (search for {}):", term.dimmed());
+
+      for path in list {
+        println!(
+          "   {} {}",
+          "»".bold(),
+          path.replace(term, &format!("{}", term.blue().bold()))
+        );
+      }
+    }
+  }
+
+  Ok(())
+}
+
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let vault = VaultContext::open(vault_path()?)?;
   let path = args.value_of("path").unwrap();

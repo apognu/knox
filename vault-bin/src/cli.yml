@@ -20,6 +20,13 @@ subcommands:
             value_name: PATH
             help: Only list entries in this prefix
 
+  - search:
+      about: Search for a specific entry
+      args:
+        - term:
+            value_name: TERM
+            help: Term to search for
+
   - info:
       about: Display general information on your vault
 

@@ -32,6 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             _ => usage(&app),
         },
         ("list", Some(args)) => commands::display::list(args),
+        ("search", Some(args)) => commands::display::search(args),
         ("show", Some(args)) => commands::display::show(args),
         ("add", Some(args)) => commands::write::add(args),
         ("edit", Some(args)) => commands::write::edit(args),

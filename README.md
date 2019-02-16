@@ -14,6 +14,8 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
    * [Add a secret](#add-a-secret)
      * [Confidentials attributes](#confidentials-attributes)
      * [File attribute](#file-attributes)
+   * [List secrets](#list-secrets)
+   * [Secret for secrets](#search-for-secrets)
    * [Print a secret](#print-a-secret)
    * [Edit a secret](#edit-a-secret)
    * [Delete a secret](#delete-a-secret)
@@ -112,6 +114,20 @@ $ vault list
       » secret2
       » secret3
       » secret4
+```
+
+You can filter the prefix for which to list secrets, for instance, `vault list subdir1/subdir2`.
+
+## Search for secrets
+
+You can search for secret matching a substring:
+
+```
+$ vault search social
+🔒 Vault store (search for social):
+   » personal/social/facebook
+   » personal/social/twitter
+   » personal/social/linkedin
 ```
 
 ## Print a secret
