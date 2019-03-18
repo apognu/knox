@@ -12,14 +12,12 @@ pub(crate) enum Item {
 }
 
 pub(crate) fn search(vault: &Vault, term: &str) -> Vec<String> {
-  let paths: Vec<String> = vault
+  vault
     .get_index()
     .keys()
     .filter(|item| item.contains(term))
-    .map(|path| path.clone())
-    .collect();
-
-  return paths;
+    .cloned()
+    .collect::<Vec<String>>()
 }
 
 pub(crate) fn build(paths: &Vault, prefix: Option<&str>) -> Option<Rc<Item>> {
