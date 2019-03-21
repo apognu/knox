@@ -20,6 +20,8 @@ An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust wit
    * [Edit a secret](#edit-a-secret)
    * [Delete a secret](#delete-a-secret)
    * [Check if you've been pwned](#check-if-youve-been-pwned)
+   * [Manage identities](#manage-identities)
+   * [A a library](#as-a-library)
 
 ## Architecture
 
@@ -214,6 +216,31 @@ INFO  vault::commands::pwned > checking for pwned secret across your vault
   ⚠  test/insecure/test1/apikey -> PWNED
   ⚠  test/insecure/test2/password -> PWNED
 ██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 53/70
+```
+
+## Manage identities
+
+When you initialize your vault, it is set up for one specific GPG identity. You may add and remove any GPG identity to your vault to allow other people to access it.
+
+**Warning:** Check with your threat model if this is appropriate for you. When someone gets a copy of a vault encrypted with their GPG public key, there is no going back, they will be able to decrypt the content of that particular snapshot of the vault forever.
+
+If you use a multi-identity vault, a single private key is sufficient to decrypt the vault, but **all** public keys are required to write to it.
+
+When you add or remove an identity to or from the vault, all entries (including metadata) are reencrypted with the new set of public keys (as GPG recipients). This could take some time, depending on the size of your vault.
+
+```
+$ vault init myown@identity.com
+ INFO  vault::commands::init > vault initialized successfully at /vault
+[...]
+$ vault identities add myfriend@identity.com
+INFO  vault::commands::identities > Writing metadata file...
+re-encrypting entry company/secret1
+re-encrypting entry personal/secret2
+re-encrypting entry company/secret2
+re-encrypting entry personal/secret1
+re-encrypting entry personal/secret3
+
+$ vault identities delete myfriend@identity.com
 ```
 
 ## As a library
