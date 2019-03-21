@@ -22,7 +22,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
       return Err(VaultError::throw("the vault already contains the provided identity, to re-encrypt all entries with this identity, use --force"));
     }
   } else {
-    info!("Writing metadata file...");
+    info!("writing metadata file...");
 
     context.add_identity(identity);
     context.write()?;
@@ -37,10 +37,14 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
       context.write_entry(path, &entry)?;
 
-      progress.println(format!("re-encrypting entry {}", path.bold()));
+      progress.println(format!("  re-encrypting entry {}", path.bold()));
       progress.inc(1);
     }
+
+    progress.finish();
   }
+
+  info!("identity added successfully");
 
   Ok(())
 }
@@ -60,7 +64,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     ));
   }
 
-  info!("Writing metadata file...");
+  info!("writing metadata file...");
 
   context.remove_identity(&identity);
   context.write()?;
@@ -73,9 +77,13 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     context.write_entry(path, &entry)?;
 
-    progress.println(format!("re-encrypting entry {}", path.bold()));
+    progress.println(format!("  re-encrypting entry {}", path.bold()));
     progress.inc(1);
   }
+
+  progress.finish();
+
+  info!("identity deleted successfully");
 
   Ok(())
 }
