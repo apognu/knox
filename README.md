@@ -156,7 +156,7 @@ $ vault show -w my/secret/file
 By default, all file attributes are written to matching files. If you wish to restrict which attribute gets considered for writing, use the ```-a``` option:
 
 ```
-$ vault show -w -a file1 -afile2 my/secret/files
+$ vault show -w -a file1 -a file2 my/secret/files
 ```
 
 For file attributes, ```-s``` (for ```--stdout```) can also be used to print the content of a single attribute to your standard output.
@@ -194,7 +194,7 @@ $ vault delete dir/subdir/website.com
 
 ## Check if you've been pwned
 
-Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to check whether some of your passwords appear in a knowned data breach. For now, you can manually check every confidential attribute is a specific entry:
+Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to check whether some of your passwords appear in a known data breach. For now, you can manually check every confidential attribute is a specific entry:
 
 ```
 $ vault pwned my/super/password

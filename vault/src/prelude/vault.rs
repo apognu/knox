@@ -78,7 +78,6 @@ impl VaultContext {
 
     let mut file = OpenOptions::new()
       .create(true)
-      .truncate(true)
       .write(true)
       .open(util::normalize_path(self, &util::METADATA_FILE))?;
 
