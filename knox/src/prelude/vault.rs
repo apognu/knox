@@ -16,6 +16,16 @@ pub struct VaultContext {
 }
 
 impl VaultContext {
+  /// Create a new `Vault`.
+  ///
+  /// Initializes a new empty vault, encrypted with the provided GPG
+  /// identities.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path`       - the filesystem path at which to create the vault.
+  ///  * `identities` - a slice if GPG identities, represented by their owner's
+  ///                   email address.
   pub fn create<P>(path: P, identities: &[String]) -> Result<Self, Box<dyn Error>>
   where
     P: AsRef<Path>,
@@ -52,6 +62,14 @@ impl VaultContext {
     })
   }
 
+  /// Return a handle to a `Vault` from the filesystem.
+  ///
+  /// Opens, decrypt the metadata of, and returns a handle that allows you to
+  /// manipulate a `Vault`.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path` - filesystem path where the vault is located.
   pub fn open<P>(path: P) -> Result<Self, Box<dyn Error>>
   where
     P: AsRef<Path>,
@@ -73,6 +91,13 @@ impl VaultContext {
     })
   }
 
+  /// Write the vault metadata.
+  ///
+  /// Persists all changes to the vault's metadata into the `_knox.meta` file
+  /// containing the encrypted mapping between virtual (user) secret paths and
+  /// filesystem paths.
+  ///
+  /// This mapping collection is called the index..
   pub fn write(&self) -> Result<(), Box<dyn Error>> {
     create_dir_all(util::normalize_path(self, &""))?;
 
@@ -86,6 +111,15 @@ impl VaultContext {
     Ok(())
   }
 
+  /// Add an entry to the index.
+  ///
+  /// Adds an entry to the index of a vault, allowing to retrieve a filesystem
+  /// path from a virtual path. This does not manage the secret itself.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path`        - virtual path to the entry.
+  ///  * `destination` - physical filesystem path to the entry.
   pub fn add_index(&mut self, path: &str, destination: &str) {
     self
       .vault
@@ -93,10 +127,27 @@ impl VaultContext {
       .insert(path.to_string(), destination.to_string());
   }
 
+  /// Remove an entry from the index.
+  ///
+  /// Removes an entry to the index of a vault, allowing to retrieve a
+  /// filesystem path from a virtual path. This does not manage the secret
+  /// itself.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path` - virtual path to the entry
   pub fn remove_index(&mut self, path: &str) {
     self.vault.mut_index().remove(path);
   }
 
+  /// Read an `Entry`.
+  ///
+  /// Takes a virtual path and returns the decrypted `Entry` from the vault, if
+  /// it exists.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path` - the virtual path to the entry.
   pub fn read_entry(&self, path: &str) -> Result<Entry, Box<dyn Error>> {
     if !self.vault.get_index().contains_key(path) {
       return Err(VaultError::throw("no entry was found at this path"));
@@ -108,6 +159,15 @@ impl VaultContext {
     Ok(entry)
   }
 
+  /// Persist an `Entry`.
+  ///
+  /// Encrypts and writes an `Entry` to its physical location as described in
+  /// the vault's index. The entry must exist in the index beforehand.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path`  - the virtual path to the entry.
+  ///  * `entry` - the `Entry` to be written.
   pub fn write_entry(&mut self, path: &str, entry: &Entry) -> Result<(), Box<dyn Error>> {
     let hash = util::hash_path(self.vault.get_index().get(path));
 
@@ -127,6 +187,14 @@ impl VaultContext {
     Ok(())
   }
 
+  /// Delete an `Entry`.
+  ///
+  /// Deletes an entry both from its backing filesystem location and from the
+  /// index.
+  ///
+  /// # Arguments
+  ///
+  ///  * `path` - the virtual path to the entry.
   pub fn delete_entry(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
     if let Some(salt) = self.vault.get_index().get(path) {
       let hash = util::hash_path(Some(salt));
@@ -151,6 +219,11 @@ impl VaultContext {
     ))
   }
 
+  /// Check if a file exists under the vault's directory.
+  ///
+  /// # Arguments
+  ///
+  ///  * - `path` - a path relative to the vault's root directory.
   pub fn has_pack<P>(&self, path: P) -> bool
   where
     P: AsRef<Path>,
@@ -158,10 +231,28 @@ impl VaultContext {
     Path::new(&util::normalize_path(self, &path)).exists()
   }
 
+  /// Add an identity to the vault
+  ///
+  /// Saves a new identity to the vault's metadata. This does not touch any
+  /// existing secrets, which should be re-encrypted for the new identity to
+  /// be used.
+  ///
+  /// # Arguments
+  ///
+  ///  * `identity` - the GPG identity
   pub fn add_identity(&mut self, identity: &str) {
     self.vault.mut_identities().push(identity.to_string());
   }
 
+  /// Remove an identity from the vault.
+  ///
+  /// Removes an existing identity from the vault's metadata. This does not
+  /// touch any existing secrets, which should be re-encrypted for the
+  /// removed identity to be unable de decrypt them.
+  ///
+  /// # Arguments
+  ///
+  ///  * `identity` - the GPG identity
   pub fn remove_identity(&mut self, identity: &str) {
     let identities = self
       .vault

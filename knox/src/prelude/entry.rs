@@ -10,6 +10,14 @@ use crate::pb::*;
 use crate::util;
 
 impl Entry {
+  /// Retrieves an entry.
+  ///
+  /// This function returns a decrypted `Entry` from its virtual path.
+  ///
+  /// # Arguments
+  ///
+  ///  * **path:** a virtual path to an `Entry`. This will be expanded to the
+  ///    real filesystem file backing the `Entry`.
   pub fn read<P>(handle: &VaultContext, path: P) -> Result<Entry, Box<dyn Error>>
   where
     P: AsRef<Path>,
@@ -20,6 +28,7 @@ impl Entry {
     Ok(message)
   }
 
+  /// Adds a standard string attribute to an Entry.
   pub fn add_attribute(&mut self, key: &str, value: &str) {
     let attribute = Attribute {
       value: value.to_string(),
@@ -29,6 +38,10 @@ impl Entry {
     self.attributes.insert(key.to_string(), attribute);
   }
 
+  /// Adds a confidential string attribute to an `Entry`.
+  ///
+  /// A confidential attribute is just represented by a boolean value and will
+  /// prevent automatic priting of the value to the console.
   pub fn add_confidential_attribute(&mut self, key: &str, value: &str) {
     let attribute = Attribute {
       value: value.to_string(),
@@ -39,6 +52,11 @@ impl Entry {
     self.attributes.insert(key.to_string(), attribute);
   }
 
+  /// Adds a file attribute to an `Entry`.
+  ///
+  /// A file attribute can contain the raw content of a filesystem file (string
+  /// or binary) and therefore will be encoded differently that string
+  /// attributes.
   pub fn add_file_attribute(&mut self, key: &str, value: &[u8]) {
     let mut attribute = Attribute {
       file: true,

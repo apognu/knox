@@ -1,12 +1,22 @@
 use crate::pb::*;
 
+/// An `Attribute`'s different kinds of value.
+///
+/// An attribute's value can be stored in differnet form. This enum abstracts
+/// over those different types to provide a unique interface to the values.
 #[derive(Debug, PartialEq)]
 pub enum AttributeValue {
+  /// The typical representation of a standard attribute, a simple UTF-8 string
   String(String),
+  /// A binary presentation of a value, used for file contents.
   Binary(Vec<u8>),
 }
 
 impl Attribute {
+  /// Retrieve an `Attribute`'s value.
+  ///
+  /// Extracts a value from an attribute, and return an enum that allows to
+  /// abstract over the actuel storage representation.
   pub fn value(&self) -> AttributeValue {
     if self.file {
       match String::from_utf8(self.bytes_value.clone()) {
