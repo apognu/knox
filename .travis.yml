@@ -27,7 +27,7 @@ jobs:
         provider: releases
         name: master
         body: Prerelease built from master
-        file: target/release/vault
+        file: target/release/knox
         overwrite: true
         skip_cleanup: true
         on:

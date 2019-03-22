@@ -627,6 +627,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "knox"
+version = "0.1.0"
+dependencies = [
+ "gpgme 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "knox_testing 0.1.0",
+ "protobuf 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "protoc-rust 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "knox-bin"
+version = "0.1.0"
+dependencies = [
+ "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clipboard 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "colored 1.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dirs 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "indicatif 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "knox 0.1.0",
+ "knox_testing 0.1.0",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pretty_env_logger 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "reqwest 0.9.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rpassword 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha-1 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "knox_testing"
+version = "0.1.0"
+dependencies = [
+ "gpgme 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "knox 0.1.0",
+ "protobuf 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1628,47 +1669,6 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "rand 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "vault"
-version = "0.1.0"
-dependencies = [
- "gpgme 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "protobuf 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "protoc-rust 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "vault_testing 0.1.0",
-]
-
-[[package]]
-name = "vault-bin"
-version = "0.1.0"
-dependencies = [
- "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "clipboard 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "colored 1.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "dirs 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "indicatif 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "pretty_env_logger 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "reqwest 0.9.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "rpassword 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "sha-1 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "vault 0.1.0",
- "vault_testing 0.1.0",
-]
-
-[[package]]
-name = "vault_testing"
-version = "0.1.0"
-dependencies = [
- "gpgme 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "protobuf 2.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "vault 0.1.0",
 ]
 
 [[package]]

@@ -1,8 +1,8 @@
-# vault.rs
+# knox
 
 ![](https://img.shields.io/travis/apognu/vault.rs/master.svg?style=flat-square)
 
-An implementation of [apognu/vault](https://github.com/apognu/vault) in Rust with one big change: encryption is handled through GPG.
+A structured secret manager encrypted through GPG.
 
 **Until this reaches 1.0.0, the Vault storage format is subject to breaking changes.**
 
@@ -39,23 +39,25 @@ All files are marshalled with _Protocol Buffers_ and encrypted through _gpg-agen
 
 This project is made of two distinct crates:
 
- * **vault**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
- * **vault-bin**: A binary using the aforementioned library to provide a CLI interface to the vault.
+ * **knox**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
+ * **knox-bin**: A binary using the aforementioned library to provide a CLI interface to the vault.
 
 ## Create the vault
 
 The following command creates an empty vault and takes the GPG identity for which the vault will be encrypted.
 
 ```
-$ vault init myidentity@example.com
- INFO  vault::commands::init > vault initialized successfully
+$ knox init myidentity@example.com
+ INFO  knox::commands::init > vault initialized successfully
 ```
+
+By default, the vault will be created in ```$HOME/.knox```. You can change this path by setting the ```KNOX_PATH``` environment variable.
 
 ## Add a secret
 
 ```
-$ vault add dir/subdir/website.com username=apognu password=Str0ngP@ss
- INFO  vault::commands::write > entry personal/website was successfully added to the vault
+$ knox add dir/subdir/website.com username=apognu password=Str0ngP@ss
+ INFO  knox::commands::write > entry personal/website was successfully added to the vault
 ```
 
 ```vault``` is attribute-agnostic, there is no special handling of, for instance, the ```password``` attribute. You can add any number of attributes to an entry.
@@ -65,9 +67,9 @@ $ vault add dir/subdir/website.com username=apognu password=Str0ngP@ss
 One special kind of attribute is _confidential_ attributes. They only differ in that they are not printed on the console by default, and they are input interactively. Any attribute set without a value will trigger the prompt and will never be printed without the ```-p``` option.
 
 ```
-$ vault add website.com username=apognu password=
+$ knox add website.com username=apognu password=
 Enter value for 'password': 
- INFO  vault::commands::write > entry personal/website was successfully added to the vault
+ INFO  knox::commands::write > entry personal/website was successfully added to the vault
 ```
 
 ### Generated passwords
@@ -77,7 +79,7 @@ One can generate random alphanumeric passwords with the attribute syntax ```attr
 The ```--symbols``` option adds special characters into the mix.
 
 ```
-$ vault add personal/website username=apognu password=-
+$ knox add personal/website username=apognu password=-
 ```
 
 One can generate passwords with a different size with the ```-l``` / ```--length``` option.
@@ -87,9 +89,9 @@ One can generate passwords with a different size with the ```-l``` / ```--length
 An entire file can be embedded into an attribute with the syntax ```attr=@/path/to/file```. File attributes will never be printed on the console, and will require the use of ```-w``` to be used.
 
 ```
-$ vault add personal/ssh pubkey=@/home/apognu/.ssh/id_rsa.pub privkey=@/home/apognu/.ssh/id_rsa
-INFO  vault::commands::write > entry personal/ssh was successfully added to the vault
-$ vault show personal/ssh
+$ knox add personal/ssh pubkey=@/home/apognu/.ssh/id_rsa.pub privkey=@/home/apognu/.ssh/id_rsa
+INFO  knox::commands::write > entry personal/ssh was successfully added to the vault
+$ knox show personal/ssh
 Store » ssh » keys
   privkey = <file content>
    pubkey = <file content>
@@ -98,7 +100,7 @@ Store » ssh » keys
 ## List secrets
 
 ```
-$ vault list
+$ knox list
 🔒 Vault store:
   » one
   » two
@@ -108,7 +110,7 @@ $ vault list
       » secret2
       » secret3
       » secret4
-  $ vault list subdir1/subdir2
+$ knox list subdir1/subdir2
 🔒 Vault store:
   / subdir1
     / subdir2
@@ -125,7 +127,7 @@ You can filter the prefix for which to list secrets, for instance, `vault list s
 You can search for secret matching a substring:
 
 ```
-$ vault search social
+$ knox search social
 🔒 Vault store (search for social):
    » personal/social/facebook
    » personal/social/twitter
@@ -135,7 +137,7 @@ $ vault search social
 ## Print a secret
 
 ```
-$ vault show dir/subdir/website.com
+$ knox show dir/subdir/website.com
 🔒 Vault store: / dir / subdir / website.com
    password = <redacted>
    username = apognu
@@ -149,22 +151,22 @@ The ```-c``` option can be used to copy one attribute to the clipboard. By defau
 When you use the ```-w``` option in combination with showing a secret containing file attributes, all the file attributes of that secret will be written to files in a directory named after the secret path.
 
 ```
-$ vault show my/secret/file
+$ knox show my/secret/file
 Store » my » secret » file
   file = <file content>
-$ vault show -w my/secret/file
+$ knox show -w my/secret/file
 ```
 
 By default, all file attributes are written to matching files. If you wish to restrict which attribute gets considered for writing, use the ```-a``` option:
 
 ```
-$ vault show -w -a file1 -a file2 my/secret/files
+$ knox show -w -a file1 -a file2 my/secret/files
 ```
 
 For file attributes, ```-s``` (for ```--stdout```) can also be used to print the content of a single attribute to your standard output.
 
 ```
-$ vault show -w -a privkey -s sshkeys/corporate | ssh-add -
+$ knox show -w -a privkey -s sshkeys/corporate | ssh-add -
 ```
 
 ## Edit a secret
@@ -172,8 +174,8 @@ $ vault show -w -a privkey -s sshkeys/corporate | ssh-add -
 The syntax for modifying an existing secret is exactly the same as the one used to create one, with one addition: an optional list of attributes to delete.
 
 ```
-$ vault edit website.com -d url username=newlogin password=
- INFO  vault::commands::write > entry website.com was successfully edited
+$ knox edit website.com -d url username=newlogin password=
+ INFO  knox::commands::write > entry website.com was successfully edited
 ```
 
 This command will delete thre ```url``` attribute from the secret, change the ```username``` attribute to ```newlogin``` and prompt for the value of the redacted attribute ```password```
@@ -183,15 +185,15 @@ This command will delete thre ```url``` attribute from the secret, change the ``
 A secret can be renamed through the ```rename``` command:
 
 ```
-$ vault rename my/first/secret new/location/secret
- INFO  vault::commands::write > entry my/first/secret was successfully renamed to new/location/secret
+$ knox rename my/first/secret new/location/secret
+ INFO  knox::commands::write > entry my/first/secret was successfully renamed to new/location/secret
 ```
 
 ## Delete a secret
 
 ```
-$ vault delete dir/subdir/website.com
- INFO  vault::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
+$ knox delete dir/subdir/website.com
+ INFO  knox::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
 ```
 
 ## Check if you've been pwned
@@ -199,8 +201,8 @@ $ vault delete dir/subdir/website.com
 Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to check whether some of your passwords appear in a known data breach. For now, you can manually check every confidential attribute is a specific entry:
 
 ```
-$ vault pwned my/super/password
-INFO  vault::commands::pwned > Pwnage status for attributes at pwned/test
+$ knox pwned my/super/password
+INFO  knox::commands::pwned > Pwnage status for attributes at pwned/test
   ⚠ password -> PWNED
   ✓ secure -> CLEAR
   ⚠ apikey -> PWNED
@@ -211,7 +213,7 @@ The check is also performed for confidential attributes when adding or editing a
 You may also omit the ```PATH``` paramter to initiate a vault-wide check against the data breaches. This may take some time, but will check all confidential attributes in your vault:
 
 ```
-INFO  vault::commands::pwned > checking for pwned secret across your vault
+INFO  knox::commands::pwned > checking for pwned secret across your vault
   ⚠  test/insecure/test1/password -> PWNED
   ⚠  test/insecure/test1/apikey -> PWNED
   ⚠  test/insecure/test2/password -> PWNED
@@ -229,35 +231,35 @@ If you use a multi-identity vault, a single private key is sufficient to decrypt
 When you add or remove an identity to or from the vault, all entries (including metadata) are reencrypted with the new set of public keys (as GPG recipients). This could take some time, depending on the size of your vault.
 
 ```
-$ vault init myown@identity.com
- INFO  vault::commands::init > vault initialized successfully at /vault
+$ knox init myown@identity.com
+ INFO  knox::commands::init > vault initialized successfully at /vault
 [...]
-$ vault identities add myfriend@identity.com
-INFO  vault::commands::identities > Writing metadata file...
+$ knox identities add myfriend@identity.com
+INFO  knox::commands::identities > Writing metadata file...
 re-encrypting entry company/secret1
 re-encrypting entry personal/secret2
 re-encrypting entry company/secret2
 re-encrypting entry personal/secret1
 re-encrypting entry personal/secret3
 
-$ vault identities delete myfriend@identity.com
+$ knox identities delete myfriend@identity.com
 ```
 
 ## As a library
 
-The library contained in ```vault``` can be used by your program to access and manipulate a vault (documentation pending). For example:
+The library contained in ```knox``` can be used by your program to access and manipulate a vault (documentation pending). For example:
 
 ```
 # Cargo.toml
 # [dependencies]
-# vault = { git = "https://github.com/apognu/vault.rs" }
+# knox = { git = "https://github.com/apognu/knox" }
 #
 # main.rs
 
-use vault::prelude::*;
+use knox::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-  let context = VaultContext::open("/home/user/.vault")?;
+  let context = VaultContext::open("/home/user/.knox")?;
   let entry = context.read_entry("personal/websites/site-a")?;
   let attributes = entry
       .attributes
