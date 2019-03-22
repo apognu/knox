@@ -7,7 +7,7 @@ use colored::*;
 use log::*;
 
 use crate::util::{display, hierarchy, vault_path};
-use knox::prelude::*;
+use libknox::prelude::*;
 
 pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path");

@@ -2,7 +2,7 @@ use std::error::Error;
 
 use colored::*;
 use indicatif::ProgressBar;
-use knox::prelude::*;
+use libknox::prelude::*;
 use log::*;
 
 use crate::util::vault_path;

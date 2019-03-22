@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::Read;
 
-use knox::prelude::*;
+use libknox::prelude::*;
 use rand::{distributions::Alphanumeric, seq::SliceRandom, Rng};
 
 pub(crate) fn build(args: &clap::ArgMatches) -> Result<HashMap<String, Attribute>, Box<dyn Error>> {

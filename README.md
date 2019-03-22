@@ -48,7 +48,7 @@ The following command creates an empty vault and takes the GPG identity for whic
 
 ```
 $ knox init myidentity@example.com
- INFO  knox::commands::init > vault initialized successfully
+ INFO  libknox::commands::init > vault initialized successfully
 ```
 
 By default, the vault will be created in ```$HOME/.knox```. You can change this path by setting the ```KNOX_PATH``` environment variable.
@@ -57,7 +57,7 @@ By default, the vault will be created in ```$HOME/.knox```. You can change this 
 
 ```
 $ knox add dir/subdir/website.com username=apognu password=Str0ngP@ss
- INFO  knox::commands::write > entry personal/website was successfully added to the vault
+ INFO  libknox::commands::write > entry personal/website was successfully added to the vault
 ```
 
 ```vault``` is attribute-agnostic, there is no special handling of, for instance, the ```password``` attribute. You can add any number of attributes to an entry.
@@ -69,7 +69,7 @@ One special kind of attribute is _confidential_ attributes. They only differ in 
 ```
 $ knox add website.com username=apognu password=
 Enter value for 'password': 
- INFO  knox::commands::write > entry personal/website was successfully added to the vault
+ INFO  libknox::commands::write > entry personal/website was successfully added to the vault
 ```
 
 ### Generated passwords
@@ -90,7 +90,7 @@ An entire file can be embedded into an attribute with the syntax ```attr=@/path/
 
 ```
 $ knox add personal/ssh pubkey=@/home/apognu/.ssh/id_rsa.pub privkey=@/home/apognu/.ssh/id_rsa
-INFO  knox::commands::write > entry personal/ssh was successfully added to the vault
+INFO  libknox::commands::write > entry personal/ssh was successfully added to the vault
 $ knox show personal/ssh
 Store » ssh » keys
   privkey = <file content>
@@ -175,7 +175,7 @@ The syntax for modifying an existing secret is exactly the same as the one used 
 
 ```
 $ knox edit website.com -d url username=newlogin password=
- INFO  knox::commands::write > entry website.com was successfully edited
+ INFO  libknox::commands::write > entry website.com was successfully edited
 ```
 
 This command will delete thre ```url``` attribute from the secret, change the ```username``` attribute to ```newlogin``` and prompt for the value of the redacted attribute ```password```
@@ -186,14 +186,14 @@ A secret can be renamed through the ```rename``` command:
 
 ```
 $ knox rename my/first/secret new/location/secret
- INFO  knox::commands::write > entry my/first/secret was successfully renamed to new/location/secret
+ INFO  libknox::commands::write > entry my/first/secret was successfully renamed to new/location/secret
 ```
 
 ## Delete a secret
 
 ```
 $ knox delete dir/subdir/website.com
- INFO  knox::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
+ INFO  libknox::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
 ```
 
 ## Check if you've been pwned
@@ -202,7 +202,7 @@ Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to
 
 ```
 $ knox pwned my/super/password
-INFO  knox::commands::pwned > Pwnage status for attributes at pwned/test
+INFO  libknox::commands::pwned > Pwnage status for attributes at pwned/test
   ⚠ password -> PWNED
   ✓ secure -> CLEAR
   ⚠ apikey -> PWNED
@@ -213,7 +213,7 @@ The check is also performed for confidential attributes when adding or editing a
 You may also omit the ```PATH``` paramter to initiate a vault-wide check against the data breaches. This may take some time, but will check all confidential attributes in your vault:
 
 ```
-INFO  knox::commands::pwned > checking for pwned secret across your vault
+INFO  libknox::commands::pwned > checking for pwned secret across your vault
   ⚠  test/insecure/test1/password -> PWNED
   ⚠  test/insecure/test1/apikey -> PWNED
   ⚠  test/insecure/test2/password -> PWNED
@@ -232,10 +232,10 @@ When you add or remove an identity to or from the vault, all entries (including 
 
 ```
 $ knox init myown@identity.com
- INFO  knox::commands::init > vault initialized successfully at /vault
+ INFO  libknox::commands::init > vault initialized successfully at /vault
 [...]
 $ knox identities add myfriend@identity.com
-INFO  knox::commands::identities > Writing metadata file...
+INFO  libknox::commands::identities > Writing metadata file...
 re-encrypting entry company/secret1
 re-encrypting entry personal/secret2
 re-encrypting entry company/secret2
@@ -256,7 +256,7 @@ The library contained in ```knox``` can be used by your program to access and ma
 #
 # main.rs
 
-use knox::prelude::*;
+use libknox::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
   let context = VaultContext::open("/home/user/.knox")?;

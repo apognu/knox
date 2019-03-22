@@ -3,7 +3,7 @@ use std::error::Error;
 use colored::*;
 use log::*;
 
-use knox::prelude::*;
+use libknox::prelude::*;
 
 use crate::util::vault_path;
 
@@ -26,7 +26,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 mod tests {
   use clap::App;
 
-  use knox::prelude::*;
+  use libknox::prelude::*;
   use knox_testing::spec;
 
   #[test]

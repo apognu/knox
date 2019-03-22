@@ -5,7 +5,7 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-use knox::prelude::*;
+use libknox::prelude::*;
 
 pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   use colored::*;

@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use knox::prelude::*;
+use libknox::prelude::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Item {
@@ -116,7 +116,7 @@ mod tests {
   use std::rc::Rc;
 
   use super::Item;
-  use knox::prelude::*;
+  use libknox::prelude::*;
 
   #[test]
   fn build() {

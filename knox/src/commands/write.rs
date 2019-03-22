@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use colored::*;
-use knox::prelude::*;
+use libknox::prelude::*;
 use log::*;
 
 use crate::commands::pwned::{self, PwnedResult};
@@ -122,7 +122,7 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 mod tests {
   use clap::App;
 
-  use knox::prelude::*;
+  use libknox::prelude::*;
   use knox_testing::spec;
 
   #[test]
