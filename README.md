@@ -1,6 +1,6 @@
 # knox
 
-![](https://img.shields.io/travis/apognu/vault.rs/master.svg?style=flat-square)
+![](https://img.shields.io/travis/apognu/knox/master.svg?style=flat-square)
 
 A structured secret manager encrypted through GPG.
 

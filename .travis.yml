@@ -23,6 +23,7 @@ jobs:
         - cargo build
     - stage: Build and deploy as GitHub release
       script: cargo build --release
+      if: tag IS present
       deploy:
         provider: releases
         name: master
