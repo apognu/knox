@@ -24,10 +24,12 @@ jobs:
     - stage: Build and deploy as GitHub release
       script: cargo build --release
       if: tag IS present
+      before_deploy:
+        - RELEASE_MESSAGE="$(git tag -ln --format '%(subject)' $TRAVIS_TAG)"
       deploy:
         provider: releases
         name: $TRAVIS_TAG
-        body: $TRAVIS_COMMIT_MESSAGE
+        body: $RELEASE_MESSAGE
         prerelease: true
         file: target/release/knox
         overwrite: true

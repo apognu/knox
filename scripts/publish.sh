@@ -4,10 +4,14 @@ set -e
 
 CRATES=(libknox knox)
 
+if [ $# -gt 0 ]; then
+  CRATES=("$@")
+fi
+
 cargo test -- --test-threads=1
 
 for CRATE in ${CRATES[@]}; do
-  cd $CRATE
+  pushd $CRATE
   
   cp Cargo.toml Cargo.toml.bak
   sed -i 's/build =.*/build = false/' Cargo.toml
@@ -18,6 +22,5 @@ for CRATE in ${CRATES[@]}; do
 
   mv Cargo.toml.bak Cargo.toml
   
-  cd ..
-
+  popd
 done
