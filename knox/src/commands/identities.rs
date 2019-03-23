@@ -37,7 +37,11 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
       context.write_entry(path, &entry)?;
 
-      progress.println(format!("  re-encrypting entry {}", path.bold()));
+      progress.println(format!(
+        " {} re-encrypting entry {}",
+        "::".bold().blue(),
+        path.bold()
+      ));
       progress.inc(1);
     }
 
@@ -77,7 +81,11 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     context.write_entry(path, &entry)?;
 
-    progress.println(format!("  re-encrypting entry {}", path.bold()));
+    progress.println(format!(
+      " {} re-encrypting entry {}",
+      "::".blue().bold(),
+      path.bold()
+    ));
     progress.inc(1);
   }
 

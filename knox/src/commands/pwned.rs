@@ -35,18 +35,26 @@ fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   for (name, attribute) in pwnage {
     match attribute {
       PwnedResult::Error => println!(
-        "  {}  {} -> {} (could not retrieve result)",
-        "⋯".magenta(),
-        name.dimmed(),
-        "ERROR".magenta()
+        " {} {} {}:{} (could not retrieve result)",
+        "::".magenta().bold(),
+        "ERROR".magenta(),
+        path.bold(),
+        name.dimmed()
       ),
       PwnedResult::Clear => println!(
-        "  {}  {} -> {}",
-        "✓".green(),
-        name.dimmed(),
-        "CLEAR".green()
+        " {} {} {}:{}",
+        "::".green().bold(),
+        "CLEAR".green(),
+        path.bold(),
+        name.dimmed()
       ),
-      PwnedResult::Pwned => println!("  {}  {} -> {}", "⚠".red(), name.dimmed(), "PWNED".red()),
+      PwnedResult::Pwned => println!(
+        " {} {} {}:{}",
+        "::".red().bold(),
+        "PWNED".red(),
+        path.bold(),
+        name.dimmed()
+      ),
     }
   }
 
@@ -56,6 +64,7 @@ fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let context = VaultContext::open(vault_path()?)?;
   let progress = ProgressBar::new(context.vault.get_index().len() as u64);
+  let mut count = 0;
 
   info!("checking for pwned secret across your vault");
 
@@ -66,12 +75,14 @@ fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
       if attribute.confidential && !attribute.file {
         if let AttributeValue::String(value) = attribute.value() {
           if let PwnedResult::Pwned = check(&value) {
+            count += 1;
+
             progress.println(format!(
-              "  {}  {}/{} -> {}",
-              "⚠".red(),
+              " {} {} {}:{}",
+              "::".red().bold(),
+              "PWNED".red(),
               path.bold(),
-              name.dimmed(),
-              "PWNED".red()
+              name.dimmed()
             ));
           }
         }
@@ -80,6 +91,10 @@ fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     progress.inc(1);
   }
+
+  progress.finish();
+
+  info!("{} secrets were found in HIBP's database", count);
 
   Ok(())
 }

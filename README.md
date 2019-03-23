@@ -203,9 +203,9 @@ Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to
 ```
 $ knox pwned my/super/password
 INFO  libknox::commands::pwned > Pwnage status for attributes at pwned/test
-  ⚠ password -> PWNED
-  ✓ secure -> CLEAR
-  ⚠ apikey -> PWNED
+ :: PWNED my/super/password:password
+ :: PWNED my/super/password:secure
+ :: PWNED my/super/password:apikey
 ```
 
 The check is also performed for confidential attributes when adding or editing an entry. You can bypass this behavior by using the ```-f``` / ```--force``` flag on those commands.
@@ -214,10 +214,12 @@ You may also omit the ```PATH``` paramter to initiate a vault-wide check against
 
 ```
 INFO  libknox::commands::pwned > checking for pwned secret across your vault
-  ⚠  test/insecure/test1/password -> PWNED
-  ⚠  test/insecure/test1/apikey -> PWNED
-  ⚠  test/insecure/test2/password -> PWNED
-██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 53/70
+ :: PWNED test/insecure/test1:password
+ :: PWNED test/insecure/test1:apikey
+ :: PWNED test/insecure/test2:password
+█████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░ 53/70
+[...]
+ INFO  knox::commands::pwned > 5 secrets were found in HIBP's database
 ```
 
 ## Manage identities
@@ -236,11 +238,11 @@ $ knox init myown@identity.com
 [...]
 $ knox identities add myfriend@identity.com
 INFO  libknox::commands::identities > Writing metadata file...
-re-encrypting entry company/secret1
-re-encrypting entry personal/secret2
-re-encrypting entry company/secret2
-re-encrypting entry personal/secret1
-re-encrypting entry personal/secret3
+ :: re-encrypting entry company/secret1
+ :: re-encrypting entry personal/secret2
+ :: re-encrypting entry company/secret2
+ :: re-encrypting entry personal/secret1
+ :: re-encrypting entry personal/secret3
 
 $ knox identities delete myfriend@identity.com
 ```
