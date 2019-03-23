@@ -26,8 +26,9 @@ jobs:
       if: tag IS present
       deploy:
         provider: releases
-        name: master
-        body: Prerelease built from master
+        name: $TRAVIS_TAG
+        body: $TRAVIS_COMMIT_MESSAGE
+        prerelease: true
         file: target/release/knox
         overwrite: true
         skip_cleanup: true
