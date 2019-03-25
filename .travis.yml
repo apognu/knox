@@ -18,13 +18,11 @@ jobs:
   include:
     - stage: Test and build
       script:
-        - cp scripts/Cargo-local.toml Cargo.toml
         - cargo clippy -- -D warnings
         - cargo test -- --test-threads=1
         - cargo build
     - stage: Build and deploy as GitHub release
       script:
-        - cp scripts/Cargo-local.toml Cargo.toml
         - cargo build --release
       if: tag IS present
       before_deploy:
