@@ -1,23 +1,26 @@
+//! Manipulate [Entries](struct.Entry.html) and their
+//! [Attributes](struct.Attribute.html).
+
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 
 use protobuf::parse_from_bytes;
 
-use super::VaultContext;
+use super::vault::VaultContext;
 use crate::gpg;
 use crate::pb::*;
 use crate::util;
 
 impl Entry {
-  /// Retrieves an entry.
+  /// Retrieve and decrypt an entry.
   ///
   /// This function returns a decrypted `Entry` from its virtual path.
   ///
   /// # Arguments
   ///
-  ///  * **path:** a virtual path to an `Entry`. This will be expanded to the
-  ///    real filesystem file backing the `Entry`.
+  ///  * **path:** - a physical path to an `Entry`. This will be expanded to
+  ///                the real filesystem file backing the `Entry`.
   pub fn read<P>(handle: &VaultContext, path: P) -> Result<Entry, Box<dyn Error>>
   where
     P: AsRef<Path>,
@@ -28,7 +31,7 @@ impl Entry {
     Ok(message)
   }
 
-  /// Adds a standard string attribute to an Entry.
+  /// Add a standard string attribute to an Entry.
   pub fn add_attribute(&mut self, key: &str, value: &str) {
     let attribute = Attribute {
       value: value.to_string(),
@@ -38,10 +41,11 @@ impl Entry {
     self.attributes.insert(key.to_string(), attribute);
   }
 
-  /// Adds a confidential string attribute to an `Entry`.
+  /// Add a confidential string attribute to an `Entry`.
   ///
-  /// A confidential attribute is just represented by a boolean value and will
-  /// prevent automatic priting of the value to the console.
+  /// A confidential attribute is represented by a boolean value and should be
+  /// used by implemntations to prevent automatic priting of the value to the
+  /// console.
   pub fn add_confidential_attribute(&mut self, key: &str, value: &str) {
     let attribute = Attribute {
       value: value.to_string(),
@@ -76,7 +80,7 @@ impl Entry {
 mod tests {
   use knox_testing::spec;
 
-  use crate::prelude::*;
+  use crate::*;
 
   #[test]
   fn read() {

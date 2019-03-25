@@ -4,7 +4,7 @@ use std::path::Path;
 
 use knox_testing::spec;
 
-use libknox::prelude::*;
+use libknox::*;
 
 pub(crate) fn get_test_vault<P>(path: P) -> Result<VaultContext, Box<dyn Error>>
 where

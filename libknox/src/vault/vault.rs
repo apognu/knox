@@ -1,3 +1,5 @@
+//! Handle around a [Vault](struct.Vault.html) instance.
+
 use std::error::Error;
 use std::fs::{create_dir_all, read_dir, remove_dir, remove_file, File, OpenOptions};
 use std::io::Write;
@@ -5,21 +7,23 @@ use std::path::Path;
 
 use protobuf::parse_from_bytes;
 
-use super::Packing;
+use super::pack::Packing;
 use crate::gpg;
 use crate::pb::*;
 use crate::util::{self, VaultError};
 
+/// Handle around a [Vault](struct.Vault.html) instance.
 pub struct VaultContext {
   pub path: String,
   pub vault: Vault,
 }
 
 impl VaultContext {
-  /// Create a new `Vault`.
+  /// Create a new vault.
   ///
   /// Initializes a new empty vault, encrypted with the provided GPG
-  /// identities.
+  /// identities. This function will fail if the given `path` is not empty or
+  /// if a public key matching the `identity` cannot be found.
   ///
   /// # Arguments
   ///
@@ -62,10 +66,12 @@ impl VaultContext {
     })
   }
 
-  /// Return a handle to a `Vault` from the filesystem.
+  /// Return a handle to a [Vault](struct.Vault.html) from the filesystem.
   ///
   /// Opens, decrypt the metadata of, and returns a handle that allows you to
-  /// manipulate a `Vault`.
+  /// manipulate a [Vault](struct.Vault.html). This function will fail of the
+  /// given `path` is not a vault instance or if it cannot be decrypted with
+  /// an available GPG private key.
   ///
   /// # Arguments
   ///
@@ -97,7 +103,7 @@ impl VaultContext {
   /// containing the encrypted mapping between virtual (user) secret paths and
   /// filesystem paths.
   ///
-  /// This mapping collection is called the index..
+  /// This requires the GPG public keys of all identities used in the vault.
   pub fn write(&self) -> Result<(), Box<dyn Error>> {
     create_dir_all(util::normalize_path(self, &""))?;
 
@@ -111,10 +117,14 @@ impl VaultContext {
     Ok(())
   }
 
-  /// Add an entry to the index.
+  /// Add an [Entry](struct.Entry.html) to the index.
   ///
-  /// Adds an entry to the index of a vault, allowing to retrieve a filesystem
-  /// path from a virtual path. This does not manage the secret itself.
+  /// Adds an [Entry](struct.Entry.html) to the index of a vault, allowing to
+  /// retrieve a filesystem path from a virtual path. This does not manage the
+  /// secret itself.
+  ///
+  /// To persist the change, refer to
+  /// [VaultContext::write](struct.VaultContext.html#method.write).
   ///
   /// # Arguments
   ///
@@ -127,11 +137,14 @@ impl VaultContext {
       .insert(path.to_string(), destination.to_string());
   }
 
-  /// Remove an entry from the index.
+  /// Remove an [Entry](struct.Entry.html) from the index.
   ///
-  /// Removes an entry to the index of a vault, allowing to retrieve a
-  /// filesystem path from a virtual path. This does not manage the secret
-  /// itself.
+  /// Removes an [Entry](struct.Entry.html) to the index of a vault, allowing
+  /// to retrieve a filesystem path from a virtual path. This does not manage
+  /// the secret itself.
+  ///
+  /// To persist the change, refer to
+  /// [VaultContext::write](struct.VaultContext.html#method.write).
   ///
   /// # Arguments
   ///
@@ -140,10 +153,10 @@ impl VaultContext {
     self.vault.mut_index().remove(path);
   }
 
-  /// Read an `Entry`.
+  /// Read an [Entry](struct.Entry.html).
   ///
-  /// Takes a virtual path and returns the decrypted `Entry` from the vault, if
-  /// it exists.
+  /// Takes a virtual path and returns the decrypted [Entry](struct.Entry.html)
+  /// from the vault, if it exists.
   ///
   /// # Arguments
   ///
@@ -159,10 +172,13 @@ impl VaultContext {
     Ok(entry)
   }
 
-  /// Persist an `Entry`.
+  /// Persist an [Entry](struct.Entry.html).
   ///
-  /// Encrypts and writes an `Entry` to its physical location as described in
-  /// the vault's index. The entry must exist in the index beforehand.
+  /// Encrypts and writes an [Entry](struct.Entry.html) to its physical
+  /// location as described in the vault's index. The entry must exist in the
+  /// index beforehand.
+  ///
+  /// This requires the GPG public keys of all identities used in the vault.
   ///
   /// # Arguments
   ///
@@ -187,10 +203,13 @@ impl VaultContext {
     Ok(())
   }
 
-  /// Delete an `Entry`.
+  /// Delete an [Entry](struct.Entry.html).
   ///
-  /// Deletes an entry both from its backing filesystem location and from the
-  /// index.
+  /// Deletes an [Entry](struct.Entry.html) both from its backing filesystem
+  /// location and from the index.
+  ///
+  /// This requires the GPG public keys of all identities used in the vault
+  /// because the index needs to be updated.
   ///
   /// # Arguments
   ///
@@ -210,6 +229,7 @@ impl VaultContext {
       }
 
       self.remove_index(&path);
+      self.write()?;
 
       return Ok(());
     }
@@ -272,8 +292,7 @@ impl VaultContext {
 mod tests {
   use knox_testing::spec;
 
-  use crate::prelude::*;
-  use crate::util;
+  use crate::*;
 
   #[test]
   fn create() {

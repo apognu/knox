@@ -9,6 +9,7 @@ A structured secret manager encrypted through GPG.
 ## Summary
 
  * [Architecture](#architecture)
+ * [Installation](#installation)
  * [Create the vault](#create-the-vault)
  * Secret management
    * [Add a secret](#add-a-secret)
@@ -25,15 +26,15 @@ A structured secret manager encrypted through GPG.
 
 ## Architecture
 
-A vault is constituted of a __vault.meta_ file, at its root, containing the GPG identity used to encrypt the data as well as an index, mapping virtual secret paths to filesystem files. All filesystem paths in the vault are relative to this metadata file.
+A vault is constituted of a _vault.meta file, at its root, containing the GPG identities used to encrypt the data as well as an index, mapping virtual secret paths to filesystem files. All filesystem paths in the vault are relative to this metadata file.
 
-When a secret is created with a virtual file of _one/two/three_, a random UUID is generated, for instance, _2aef7bc6-856c-492d-aaee-07e0f2579812_, and the secret's attributes will be stored in a file named _2a/2aef7bc6-856c-492d-aaee-07e0f2579812_.
+When a secret is created with a virtual path of one/two/three, a random UUID is generated, for instance, 2aef7bc6-856c-492d-aaee-07e0f2579812, and the secret's attributes will be stored in a file named 2a/2aef7bc6-856c-492d-aaee-07e0f2579812.
 
-The mapping between virtual paths and filesystem paths is kept in the metadata file, and allows for retrieving data based on familiar user-defined paths. Hence, the metadata file is essential for using the vault and **should be backed up** along with the data. Secret files could still be manually decrypted and read, but you would lose the ability to refer to them through virtual paths.
+The mapping between virtual paths and filesystem paths is kept in the metadata file, and allows for retrieving data based on familiar user-defined paths. Hence, the metadata file is essential for using the vault and should be backed up along with the data. Secret files could still be manually decrypted and read, but you would lose the ability to refer to them through virtual paths.
 
 The filesystem paths being random, and both the secret and metadata files being encrypted with your GPG public key, the filesystem does not give any information about what is stored inside the secrets.
 
-All files are marshalled with _Protocol Buffers_ and encrypted through _gpg-agent_, producing armored ciphertext.
+All files are marshalled with Protocol Buffers and encrypted through gpg-agent, producing armored ciphertext.
 
 ### Crates
 
@@ -41,6 +42,21 @@ This project is made of two distinct crates:
 
  * **knox**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
  * **knox-bin**: A binary using the aforementioned library to provide a CLI interface to the vault.
+
+## Installation
+
+Knox can be installed through `cargo`:
+
+```
+$ cargo install knox
+```
+
+As a library, you can add this stanza to your `Cargo.yaml`:
+
+```
+[dependencies]
+libknox = "^0.1.2"
+```
 
 ## Create the vault
 
@@ -249,31 +265,8 @@ $ knox identities delete myfriend@identity.com
 
 ## As a library
 
-The library contained in ```knox``` can be used by your program to access and manipulate a vault (documentation pending). For example:
+The `examples` directory contain an example showing how to use `libknox` to manipulate vaults. You can run the example with:
 
 ```
-# Cargo.toml
-# [dependencies]
-# knox = { git = "https://github.com/apognu/knox" }
-#
-# main.rs
-
-use libknox::prelude::*;
-
-fn main() -> Result<(), Box<dyn Error>> {
-  let context = VaultContext::open("/home/user/.knox")?;
-  let entry = context.read_entry("personal/websites/site-a")?;
-  let attributes = entry
-      .attributes
-      .iter()
-      .filter(|(_, attribute)| !attribute.confidential);
-
-  for (key, attribute) in attributes {
-      if let AttributeValue::String(value) = attribute.value() {
-          println!("{} = {}", key, value);
-      }
-  }
-
-  Ok(())
-}
+$ cargo run --example simple
 ```

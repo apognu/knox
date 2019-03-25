@@ -3,7 +3,7 @@ use std::error::Error;
 use colored::*;
 use log::*;
 
-use libknox::prelude::*;
+use libknox::*;
 
 use crate::util::vault_path;
 
@@ -12,7 +12,6 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
 
   vault.delete_entry(path)?;
-  vault.write()?;
 
   info!(
     "entry {} was successfully deleted from the vault",
@@ -26,8 +25,8 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 mod tests {
   use clap::App;
 
-  use libknox::prelude::*;
   use knox_testing::spec;
+  use libknox::*;
 
   #[test]
   fn delete() {

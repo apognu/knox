@@ -3,7 +3,7 @@ use std::error::Error;
 use colored::*;
 use log::*;
 
-use libknox::prelude::*;
+use libknox::*;
 
 use crate::util::vault_path;
 
@@ -26,8 +26,8 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 mod tests {
   use clap::App;
 
-  use libknox::prelude::*;
   use knox_testing::spec;
+  use libknox::*;
 
   #[test]
   fn init() {

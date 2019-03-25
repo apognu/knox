@@ -4,7 +4,7 @@ use std::path::Path;
 
 use uuid::Uuid;
 
-use crate::prelude::*;
+use crate::*;
 
 pub(crate) const METADATA_FILE: &str = "_knox.meta";
 

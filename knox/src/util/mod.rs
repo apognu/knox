@@ -5,7 +5,7 @@ pub(crate) mod hierarchy;
 use std::env;
 use std::error::Error;
 
-use libknox::prelude::*;
+use libknox::*;
 
 pub(crate) fn vault_path() -> Result<String, Box<dyn Error>> {
   let path = env::var("KNOX_PATH");

@@ -1,4 +1,3 @@
-
 fn main() {
 	use protoc_rust::Customize;
 	

@@ -1,6 +1,8 @@
+//! Abstract over [Attribute](struct.Attribute.html) values
+
 use crate::pb::*;
 
-/// An `Attribute`'s different kinds of value.
+/// An [Attribute](struct.Attribute.html)'s different kinds of value.
 ///
 /// An attribute's value can be stored in differnet form. This enum abstracts
 /// over those different types to provide a unique interface to the values.
@@ -13,7 +15,7 @@ pub enum AttributeValue {
 }
 
 impl Attribute {
-  /// Retrieve an `Attribute`'s value.
+  /// Retrieve an [Attribute](struct.Attribute.html)'s value.
   ///
   /// Extracts a value from an attribute, and return an enum that allows to
   /// abstract over the actuel storage representation.
@@ -31,7 +33,7 @@ impl Attribute {
 
 #[cfg(test)]
 mod tests {
-  use crate::prelude::*;
+  use crate::*;
 
   #[test]
   fn set_and_get_value() {

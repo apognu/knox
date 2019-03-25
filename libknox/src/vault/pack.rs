@@ -2,6 +2,7 @@ use std::error::Error;
 
 use protobuf::{CodedOutputStream, Message};
 
+/// Trait for message serialization
 pub trait Packing {
   fn pack(&self) -> Result<Vec<u8>, Box<dyn Error>>;
 }
@@ -25,7 +26,7 @@ where
 mod tests {
   use knox_testing::spec;
 
-  use crate::prelude::*;
+  use crate::*;
 
   #[test]
   fn pack() {

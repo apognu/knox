@@ -3,7 +3,7 @@ use std::error::Error;
 
 use colored::*;
 use indicatif::ProgressBar;
-use libknox::prelude::*;
+use libknox::*;
 use log::*;
 use sha1::{Digest, Sha1};
 

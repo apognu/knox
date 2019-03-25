@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use colored::*;
-use libknox::prelude::*;
+use libknox::*;
 
 use crate::util::vault_path;
 
