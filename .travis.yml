@@ -19,7 +19,7 @@ jobs:
     - stage: Test and build
       script:
         - cp scripts/Cargo-local.toml Cargo.toml
-        - cargo clippy
+        - cargo clippy -- -D warnings
         - cargo test -- --test-threads=1
         - cargo build
     - stage: Build and deploy as GitHub release

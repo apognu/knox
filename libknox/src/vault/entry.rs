@@ -7,7 +7,7 @@ use std::path::Path;
 
 use protobuf::parse_from_bytes;
 
-use super::vault::VaultContext;
+use super::context::VaultContext;
 use crate::gpg;
 use crate::pb::*;
 use crate::util;
