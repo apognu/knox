@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "libknox",
+  "knox",
+  "knox-testing"
+]
+
+[patch.crates-io]
+libknox = { path = "./libknox" }
