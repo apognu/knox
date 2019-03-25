@@ -22,7 +22,7 @@ A structured secret manager encrypted through GPG.
    * [Delete a secret](#delete-a-secret)
    * [Check if you've been pwned](#check-if-youve-been-pwned)
    * [Manage identities](#manage-identities)
-   * [A a library](#as-a-library)
+   * [As a library](#as-a-library)
 
 ## Architecture
 
