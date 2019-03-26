@@ -18,7 +18,7 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
     .map(|component| format!("{}", component.blue()))
     .collect::<Vec<String>>();
 
-  crumbs.insert(0, "🔒 Vault store:".to_string());
+  crumbs.insert(0, "🔒 Knox".to_string());
 
   print!("{}", crumbs.join(&format!("{}", " / ".dimmed())));
   println!(" / {}", file_name.bold());

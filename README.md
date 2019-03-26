@@ -108,7 +108,7 @@ An entire file can be embedded into an attribute with the syntax ```attr=@/path/
 $ knox add personal/ssh pubkey=@/home/apognu/.ssh/id_rsa.pub privkey=@/home/apognu/.ssh/id_rsa
 INFO  libknox::commands::write > entry personal/ssh was successfully added to the vault
 $ knox show personal/ssh
-Store » ssh » keys
+🔒 Knox » ssh » keys
   privkey = <file content>
    pubkey = <file content>
 ```
@@ -117,7 +117,7 @@ Store » ssh » keys
 
 ```
 $ knox list
-🔒 Vault store:
+🔒 Knox
   » one
   » two
   / subdir1
@@ -127,7 +127,7 @@ $ knox list
       » secret3
       » secret4
 $ knox list subdir1/subdir2
-🔒 Vault store:
+🔒 Knox
   / subdir1
     / subdir2
       » secret1
@@ -144,7 +144,7 @@ You can search for secret matching a substring:
 
 ```
 $ knox search social
-🔒 Vault store (search for social):
+🔒 Knox (search for social):
    » personal/social/facebook
    » personal/social/twitter
    » personal/social/linkedin
@@ -154,7 +154,7 @@ $ knox search social
 
 ```
 $ knox show dir/subdir/website.com
-🔒 Vault store: / dir / subdir / website.com
+🔒 Knox / dir / subdir / website.com
    password = <redacted>
    username = apognu
         url = http://example.com/login
@@ -168,7 +168,7 @@ When you use the ```-w``` option in combination with showing a secret containing
 
 ```
 $ knox show my/secret/file
-Store » my » secret » file
+🔒 Knox » my » secret » file
   file = <file content>
 $ knox show -w my/secret/file
 ```

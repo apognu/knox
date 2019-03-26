@@ -8,28 +8,31 @@ mod util;
 use std::error::Error;
 use std::{env, process};
 
-use clap::ArgMatches;
+use clap::App;
 use log::*;
 
 #[cfg(test)]
 mod spec;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    use clap::App;
-
     env::set_var("RUST_LOG", "info");
     pretty_env_logger::init();
 
     let yml = load_yaml!("cli.yml");
-    let app = App::from_yaml(yml).get_matches();
+    let mut app = App::from_yaml(yml)
+        .name(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!());
 
-    let result = match app.subcommand() {
+    let matches = app.clone().get_matches();
+
+    let result = match matches.subcommand() {
         ("init", Some(args)) => commands::init::init(args),
         ("info", Some(args)) => commands::info::info(args),
         ("identities", Some(args)) => match args.subcommand() {
             ("add", Some(args)) => commands::identities::add(args),
             ("delete", Some(args)) => commands::identities::delete(args),
-            _ => usage(&app),
+            _ => usage(&mut app),
         },
         ("list", Some(args)) => commands::display::list(args),
         ("search", Some(args)) => commands::display::search(args),
@@ -39,7 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
         ("pwned", Some(args)) => commands::pwned::pwned(args),
-        _ => usage(&app),
+        _ => usage(&mut app),
     };
 
     if let Err(error) = result {
@@ -50,7 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn usage(app: &ArgMatches) -> ! {
-    println!("{}", app.usage());
+fn usage(app: &mut App) -> ! {
+    let _ = app.print_help();
     process::exit(1);
 }

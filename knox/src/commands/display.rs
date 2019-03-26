@@ -21,7 +21,7 @@ pub(crate) fn list(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   match list {
     Some(list) => {
-      println!("🔒 Vault store:");
+      println!("🔒 Knox");
       hierarchy::print(&mut vec![], &list);
     }
     None => {
@@ -44,7 +44,7 @@ pub(crate) fn search(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   match list.len() {
     0 => info!("the term you searched for was not found in the vault"),
     _ => {
-      println!("🔒 Vault store (search for {}):", term.dimmed());
+      println!("🔒 Knox (search for '{}'):", term.dimmed());
 
       for path in list {
         println!(

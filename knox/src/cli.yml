@@ -1,7 +1,5 @@
-name: vault
-version: "0.1.0"
-about: personal secret vault
-author: Antoine POPINEAU <antoine.popineau@appscho.com>
+name: knox
+about: Personal structured secret manager encrypted with GPG
 
 subcommands:
   - init:
