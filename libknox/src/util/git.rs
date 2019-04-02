@@ -57,3 +57,69 @@ pub(crate) fn commit(vault: &VaultContext, message: &str) -> Result<(), Box<dyn 
 
   Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+  use git2::{Repository, Sort};
+
+  use knox_testing::spec;
+
+  use crate::*;
+
+  #[test]
+  fn init() {
+    let tmp = spec::setup();
+    let context = VaultContext {
+      path: tmp.path().to_str().unwrap().to_string(),
+      vault: Vault::new(),
+    };
+
+    git::init(&context).expect("could not initialize git repository");
+
+    let repo = Repository::open(tmp.path()).expect("could not open repository");
+    let mut revwalk = repo.revwalk().expect("could not get revwalk");
+    revwalk.push_head().expect("could not find HEAD");
+    revwalk.set_sorting(Sort::REVERSE);
+
+    let log: Vec<_> = revwalk.collect();
+
+    assert_eq!(log.len(), 1);
+
+    for rev in log {
+      let commit = repo
+        .find_commit(rev.unwrap())
+        .expect("could not find root commit");
+
+      assert_eq!(
+        commit.summary().unwrap_or(""),
+        "Initialized knox repository."
+      );
+    }
+  }
+
+  #[test]
+  fn commit() {
+    let tmp = spec::setup();
+    let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+
+    context
+      .write_entry("a", &Entry::default())
+      .expect("could not write entry");
+    context.commit("abcdef").expect("could not commit changes");
+
+    let repo = Repository::open(tmp.path()).expect("could not open repository");
+    let mut revwalk = repo.revwalk().expect("could not get revwalk");
+    revwalk.push_head().expect("could not find HEAD");
+    revwalk.set_sorting(Sort::REVERSE);
+
+    for (i, rev) in revwalk.enumerate() {
+      if i == 1 {
+        let commit = repo
+          .find_commit(rev.unwrap())
+          .expect("could not find root commit");
+
+        assert_eq!(commit.summary().unwrap_or(""), "abcdef");
+      }
+    }
+  }
+}
