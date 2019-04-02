@@ -58,7 +58,7 @@ As a library, you can add this stanza to your `Cargo.yaml`:
 
 ```
 [dependencies]
-libknox = "^0.1.2"
+libknox = "^0.1.1"
 ```
 
 ## Create the vault
@@ -68,9 +68,12 @@ The following command creates an empty vault and takes the GPG identity for whic
 ```
 $ knox init myidentity@example.com
  INFO  libknox::commands::init > vault initialized successfully
+ INFO  knox::commands::init > local git repository initialized
 ```
 
 By default, the vault will be created in ```$HOME/.knox```. You can change this path by setting the ```KNOX_PATH``` environment variable.
+
+A local git repository will also be created in your vault directory (see [Git integration](#git-integration) for more information). This behavior can be disabled by passing `--no-git` to `init`.
 
 ## Add a secret
 

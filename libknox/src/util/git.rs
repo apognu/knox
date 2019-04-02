@@ -4,6 +4,10 @@ use git2::{Commit, Config, Direction, IndexAddOption, ObjectType, Repository, Si
 
 use crate::{util::VaultError, VaultContext};
 
+pub fn exists(vault: &VaultContext) -> bool {
+  vault.has_pack(".git")
+}
+
 fn last_commit(repo: &Repository) -> Result<Commit, git2::Error> {
   let object = repo.head()?.resolve()?.peel(ObjectType::Commit)?;
 
@@ -20,6 +24,10 @@ pub(crate) fn init(vault: &VaultContext) -> Result<(), Box<dyn Error>> {
 }
 
 pub(crate) fn commit(vault: &VaultContext, message: &str) -> Result<(), Box<dyn Error>> {
+  if !exists(&vault) {
+    return Ok(());
+  }
+
   match Repository::open(&vault.path) {
     Ok(repo) => {
       let (name, email) = Config::open_default()?
@@ -61,6 +69,10 @@ pub(crate) fn commit(vault: &VaultContext, message: &str) -> Result<(), Box<dyn 
 }
 
 pub(crate) fn set_origin(vault: &VaultContext, origin: &str) -> Result<(), Box<dyn Error>> {
+  if !exists(&vault) {
+    return Err(VaultError::throw("local git repository does not exist"));
+  }
+
   let repo = Repository::open(&vault.path)?;
 
   repo.remote_set_url("origin", origin)?;
@@ -69,6 +81,10 @@ pub(crate) fn set_origin(vault: &VaultContext, origin: &str) -> Result<(), Box<d
 }
 
 pub(crate) fn push(vault: &VaultContext) -> Result<(), Box<dyn Error>> {
+  if !exists(&vault) {
+    return Err(VaultError::throw("local git repository does not exist"));
+  }
+
   let repo = Repository::open(&vault.path)?;
   let mut remote = repo.find_remote("origin")?;
 

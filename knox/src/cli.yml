@@ -5,6 +5,9 @@ subcommands:
   - init:
       about: Initializes an empty vault
       args:
+        - no_git:
+            long: no-git
+            help: Skip the creation of a local git repository
         - identity:
             value_name: GPG_IDENTITY
             help: Email address of your GPG identity

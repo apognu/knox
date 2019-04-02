@@ -19,7 +19,7 @@ fn main() {
     .write_entry("personal/website.com", &entry)
     .expect("FAIL");
 
-  // Open the prevously created vault and read the written entry
+  // Open the previously created vault and read the written entry
   let vault = VaultContext::open("/tmp/knox-example").expect("FAIL");
   let entry = vault.read_entry("personal/website.com").expect("FAIL");
 

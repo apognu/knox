@@ -15,9 +15,15 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     .map(|s| s.to_string())
     .collect();
 
-  VaultContext::create(&path, &identities)?.write()?;
+  let context = VaultContext::create(&path, &identities)?;
+  context.write()?;
 
   info!("vault initialized successfully at {}", path.bold());
+
+  if !args.is_present("no_git") {
+    context.git_init()?;
+    info!("local git repository initialized");
+  }
 
   Ok(())
 }

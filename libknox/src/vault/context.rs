@@ -65,8 +65,6 @@ impl VaultContext {
       },
     };
 
-    git::init(&vault)?;
-
     Ok(vault)
   }
 
@@ -289,6 +287,11 @@ impl VaultContext {
     self
       .vault
       .set_identities(protobuf::RepeatedField::from(identities))
+  }
+
+  /// Initialize a local git repository
+  pub fn git_init(&self) -> Result<(), Box<dyn Error>> {
+    git::init(&self)
   }
 
   /// Commit all unstaged files to git repository
