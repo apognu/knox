@@ -30,7 +30,9 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   if abort && !args.is_present("force") {
-    return Err(VaultError::throw("aborting because some confidential attributes were breached in Have I Been Pwned, use --force to override"));
+    return Err(VaultError::throw(
+      "some confidential attributes were found in HIBP's database, use --force to override",
+    ));
   }
 
   let entry = Entry {
@@ -72,7 +74,9 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   if abort && !args.is_present("force") {
-    return Err(VaultError::throw("aborting because some confidential attributes were breached in Have I Been Pwned, use --force to override"));
+    return Err(VaultError::throw(
+      "some confidential attributes were found in HIBP's database, use --force to override",
+    ));
   }
 
   let mut entry = context.read_entry(&path)?;
