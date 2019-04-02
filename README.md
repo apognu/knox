@@ -22,6 +22,7 @@ A structured secret manager encrypted through GPG.
    * [Delete a secret](#delete-a-secret)
    * [Check if you've been pwned](#check-if-youve-been-pwned)
    * [Manage identities](#manage-identities)
+   * [Git integration](#git-integration)
    * [As a library](#as-a-library)
 
 ## Architecture
@@ -35,6 +36,8 @@ The mapping between virtual paths and filesystem paths is kept in the metadata f
 The filesystem paths being random, and both the secret and metadata files being encrypted with your GPG public key, the filesystem does not give any information about what is stored inside the secrets.
 
 All files are marshalled with Protocol Buffers and encrypted through gpg-agent, producing armored ciphertext.
+
+When a vault is initialized, a local git repository is created in its directory, to record all operations.
 
 ### Crates
 
@@ -218,7 +221,7 @@ Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to
 
 ```
 $ knox pwned my/super/password
-INFO  libknox::commands::pwned > Pwnage status for attributes at pwned/test
+ INFO  libknox::commands::pwned > Pwnage status for attributes at pwned/test
  :: PWNED my/super/password:password
  :: PWNED my/super/password:secure
  :: PWNED my/super/password:apikey
@@ -253,7 +256,7 @@ $ knox init myown@identity.com
  INFO  libknox::commands::init > vault initialized successfully at /vault
 [...]
 $ knox identities add myfriend@identity.com
-INFO  libknox::commands::identities > Writing metadata file...
+ INFO  libknox::commands::identities > Writing metadata file...
  :: re-encrypting entry company/secret1
  :: re-encrypting entry personal/secret2
  :: re-encrypting entry company/secret2
@@ -261,6 +264,19 @@ INFO  libknox::commands::identities > Writing metadata file...
  :: re-encrypting entry personal/secret3
 
 $ knox identities delete myfriend@identity.com
+```
+
+## Git integration
+
+Every time you edit your vault, either by adding, editing or deleting secrets, or changing identities, a git commit is created in your vault directory. **No identifying information** about your secret is ever stored in the commit messages, so as not to leak any insight into what you store in your vault.
+
+You can manually set a remote and push your repository if you so desire:
+
+```
+$ knox git remote git@my.githost.com:passwords.git
+ INFO  knox::commands::git > git remote URL set to 'git@my.githost.com:passwords.git'
+$ knox git push
+ INFO  knox::commands::git > vault modifications successfully pushed upstream
 ```
 
 ## As a library
