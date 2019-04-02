@@ -137,6 +137,9 @@ mod tests {
   fn commit() {
     let tmp = spec::setup();
     let mut context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    context
+      .git_init()
+      .expect("could not create local git repository");
 
     context
       .write_entry("a", &Entry::default())
@@ -163,6 +166,9 @@ mod tests {
   fn set_remote() {
     let tmp = spec::setup();
     let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+    context
+      .git_init()
+      .expect("could not create local git repository");
 
     let repo = Repository::open(tmp.path()).expect("could not open repository");
     repo
