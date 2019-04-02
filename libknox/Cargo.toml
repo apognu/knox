@@ -20,6 +20,7 @@ knox_testing = { path = "../knox-testing", version = "0.1.0" }
 protobuf = "^2.2"
 gpgme = "^0.8"
 uuid = { version = "^0.7", features = ["v4"] }
+git2 = "0.8"
 
 [features]
 protobufs = []

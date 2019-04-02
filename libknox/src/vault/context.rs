@@ -10,7 +10,7 @@ use protobuf::parse_from_bytes;
 use super::pack::Packing;
 use crate::gpg;
 use crate::pb::*;
-use crate::util::{self, VaultError};
+use crate::util::{self, git, VaultError};
 
 /// Handle around a [Vault](struct.Vault.html) instance.
 pub struct VaultContext {
@@ -34,36 +34,40 @@ impl VaultContext {
   where
     P: AsRef<Path>,
   {
-    if path.as_ref().join(util::METADATA_FILE).exists() {
+    let path = path.as_ref();
+
+    if path.join(util::METADATA_FILE).exists() {
       return Err(VaultError::throw(&format!(
         "a vault already exists at {}, refusing to overwrite",
-        path.as_ref().display(),
+        path.display(),
       )));
     }
 
-    if path.as_ref().exists() {
-      match read_dir(&path) {
+    if path.exists() {
+      match read_dir(path) {
         Err(err) => return Err(Box::new(err)),
         Ok(directory) => {
           if directory.count() > 0 {
             return Err(VaultError::throw(&format!(
               "a non-empty directory already exists at {}, refusing to overwrite",
-              path.as_ref().display()
+              path.display()
             )));
           }
         }
       }
     }
 
-    let vault = Vault {
-      identities: protobuf::RepeatedField::from(identities),
-      ..Vault::default()
+    let vault = Self {
+      path: format!("{}", path.display()),
+      vault: Vault {
+        identities: protobuf::RepeatedField::from(identities),
+        ..Vault::default()
+      },
     };
 
-    Ok(Self {
-      path: format!("{}", path.as_ref().display()),
-      vault,
-    })
+    git::init(&vault)?;
+
+    Ok(vault)
   }
 
   /// Return a handle to a [Vault](struct.Vault.html) from the filesystem.
@@ -285,6 +289,14 @@ impl VaultContext {
     self
       .vault
       .set_identities(protobuf::RepeatedField::from(identities))
+  }
+
+  /// Commit all unstaged files to git repository
+  ///
+  /// Use this function to add all uncommitted modifications to the git index
+  /// and commit them into the local git repository.
+  pub fn commit(&self, message: &str) -> Result<(), Box<dyn Error>> {
+    git::commit(&self, message)
   }
 }
 

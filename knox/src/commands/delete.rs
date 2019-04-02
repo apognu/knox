@@ -12,6 +12,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
 
   vault.delete_entry(path)?;
+  vault.commit("Deleted entry.")?;
 
   info!(
     "entry {} was successfully deleted from the vault",

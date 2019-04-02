@@ -8,4 +8,4 @@ pub use crate::vault::context::VaultContext;
 pub use crate::vault::pack::Packing;
 
 pub use crate::pb::*;
-pub use crate::util::VaultError;
+pub use crate::util::{git, VaultError};

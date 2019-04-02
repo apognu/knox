@@ -39,6 +39,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   };
 
   context.write_entry(&path, &entry)?;
+  context.commit("Added entry.")?;
 
   info!("entry {} was successfully added to the vault", path.bold());
 
@@ -83,6 +84,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   context.write_entry(&path, &entry)?;
+  context.commit("Edited entry.")?;
 
   info!("entry {} was successfully edited", path.bold());
 
@@ -108,6 +110,7 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   context.add_index(destination, &salt);
   context.remove_index(source);
   context.write()?;
+  context.commit("Renamed entry.")?;
 
   info!(
     "entry {} was successfully renamed to {}",

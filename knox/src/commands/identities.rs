@@ -46,6 +46,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     }
 
     progress.finish();
+    context.commit("Added identity.")?;
   }
 
   info!("identity added successfully");
@@ -90,6 +91,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   progress.finish();
+  context.commit("Removed identity.")?;
 
   info!("identity deleted successfully");
 
