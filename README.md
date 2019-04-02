@@ -58,7 +58,7 @@ As a library, you can add this stanza to your `Cargo.yaml`:
 
 ```
 [dependencies]
-libknox = "^0.1.1"
+libknox = "^0.2.0"
 ```
 
 ## Create the vault
