@@ -1,5 +1,6 @@
 pub(crate) mod delete;
 pub(crate) mod display;
+pub(crate) mod git;
 pub(crate) mod identities;
 pub(crate) mod info;
 pub(crate) mod init;

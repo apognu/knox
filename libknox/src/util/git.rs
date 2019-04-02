@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use git2::{Commit, Config, IndexAddOption, ObjectType, Repository, Signature};
+use git2::{Commit, Config, Direction, IndexAddOption, ObjectType, Repository, Signature};
 
 use crate::{util::VaultError, VaultContext};
 
@@ -15,7 +15,7 @@ fn last_commit(repo: &Repository) -> Result<Commit, git2::Error> {
 pub(crate) fn init(vault: &VaultContext) -> Result<(), Box<dyn Error>> {
   match Repository::init(&vault.path) {
     Ok(_) => commit(&vault, "Initialized knox repository."),
-    Err(_) => return Err(VaultError::throw("could not init git repository")),
+    Err(_) => Err(VaultError::throw("could not init git repository")),
   }
 }
 
@@ -26,8 +26,10 @@ pub(crate) fn commit(vault: &VaultContext, message: &str) -> Result<(), Box<dyn 
         .snapshot()
         .map(|c| {
           (
-            c.get_string("user.name").unwrap_or("Knox".to_string()),
-            c.get_string("user.email").unwrap_or("N/A".to_string()),
+            c.get_string("user.name")
+              .unwrap_or_else(|_| "Knox".to_string()),
+            c.get_string("user.email")
+              .unwrap_or_else(|_| "N/A".to_string()),
           )
         })
         .unwrap_or(("Knox".to_string(), "N/A".to_string()));
@@ -54,6 +56,24 @@ pub(crate) fn commit(vault: &VaultContext, message: &str) -> Result<(), Box<dyn 
       ));
     }
   }
+
+  Ok(())
+}
+
+pub(crate) fn set_origin(vault: &VaultContext, origin: &str) -> Result<(), Box<dyn Error>> {
+  let repo = Repository::open(&vault.path)?;
+
+  repo.remote_set_url("origin", origin)?;
+
+  Ok(())
+}
+
+pub(crate) fn push(vault: &VaultContext) -> Result<(), Box<dyn Error>> {
+  let repo = Repository::open(&vault.path)?;
+  let mut remote = repo.find_remote("origin")?;
+
+  remote.connect(Direction::Push)?;
+  remote.push(&["refs/heads/master:refs/heads/master"], None)?;
 
   Ok(())
 }
@@ -121,5 +141,22 @@ mod tests {
         assert_eq!(commit.summary().unwrap_or(""), "abcdef");
       }
     }
+  }
+
+  #[test]
+  fn set_remote() {
+    let tmp = spec::setup();
+    let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
+
+    let repo = Repository::open(tmp.path()).expect("could not open repository");
+    repo
+      .remote("testremote", "https://git.example.com")
+      .expect("could not set remote URL");
+
+    let remote = repo
+      .find_remote("testremote")
+      .expect("could not find created remote");
+
+    assert_eq!(remote.url().unwrap_or(""), "https://git.example.com");
   }
 }

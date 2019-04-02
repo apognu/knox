@@ -42,6 +42,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
         ("pwned", Some(args)) => commands::pwned::pwned(args),
+        ("git", Some(args)) => match args.subcommand() {
+            ("remote", Some(args)) => commands::git::set_remote(args),
+            ("push", Some(args)) => commands::git::push(args),
+            _ => usage(&mut app),
+        },
         _ => usage(&mut app),
     };
 

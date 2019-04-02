@@ -170,4 +170,16 @@ subcommands:
         - path:
             value_name: PATH
             help: Path to the entry. If missing, checks the whole vault
+  - git:
+      subcommands:
+        - remote:
+            about: Set the URL of the git remote repository
+            args:
+                - url:
+                    value_name: REMOTE_URL
+                    help: URL of the git remote repository
+                    required: true
+        - push:
+            about: Push the local git repostory
+            
 

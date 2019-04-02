@@ -295,8 +295,28 @@ impl VaultContext {
   ///
   /// Use this function to add all uncommitted modifications to the git index
   /// and commit them into the local git repository.
+  ///
+  /// # Arguments
+  ///
+  ///  * `message` - the commit message to be used for the commit
   pub fn commit(&self, message: &str) -> Result<(), Box<dyn Error>> {
     git::commit(&self, message)
+  }
+
+  /// Set the URL of the remote git repository
+  ///
+  /// No particular check is performed on the validity of the provided URL.
+  ///
+  /// # Arguments
+  ///
+  ///  * `origin` - the URL for the remote git repository
+  pub fn set_git_origin(&self, origin: &str) -> Result<(), Box<dyn Error>> {
+    git::set_origin(&self, origin)
+  }
+
+  /// Push all commited data to the remote git repository
+  pub fn push(&self) -> Result<(), Box<dyn Error>> {
+    git::push(&self)
   }
 }
 
