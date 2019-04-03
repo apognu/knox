@@ -282,6 +282,8 @@ $ knox git push
  INFO  knox::commands::git > vault modifications successfully pushed upstream
 ```
 
+For now, the only supported authentication methods is through SSH keys provided by `ssh-agent`.
+
 ## As a library
 
 The `examples` directory contain an example showing how to use `libknox` to manipulate vaults. You can run the example with:

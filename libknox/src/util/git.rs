@@ -1,6 +1,9 @@
 use std::error::Error;
 
-use git2::{Commit, Config, Direction, IndexAddOption, ObjectType, Repository, Signature};
+use git2::{
+  Commit, Config, Cred, IndexAddOption, ObjectType, PushOptions, RemoteCallbacks, Repository,
+  Signature,
+};
 
 use crate::{util::VaultError, VaultContext};
 
@@ -87,9 +90,29 @@ pub(crate) fn push(vault: &VaultContext) -> Result<(), Box<dyn Error>> {
 
   let repo = Repository::open(&vault.path)?;
   let mut remote = repo.find_remote("origin")?;
+  let mut retry = false;
+  let mut callbacks = RemoteCallbacks::new();
 
-  remote.connect(Direction::Push)?;
-  remote.push(&["refs/heads/master:refs/heads/master"], None)?;
+  callbacks.credentials(|_, user, credentials| {
+    if retry {
+      return Err(git2::Error::from_str(
+        "ssh agent did not provide valid public key",
+      ));
+    }
+
+    if credentials.contains(git2::CredentialType::USERNAME) {
+      return Cred::username(user.unwrap_or("git"));
+    }
+
+    retry = true;
+
+    Cred::ssh_key_from_agent("git")
+  });
+
+  let mut options = PushOptions::new();
+  options.remote_callbacks(callbacks);
+
+  remote.push(&["refs/heads/master:refs/heads/master"], Some(&mut options))?;
 
   Ok(())
 }
