@@ -281,7 +281,7 @@ impl VaultContext {
       .identities
       .iter()
       .filter(|id| id != &identity)
-      .map(|id| id.to_owned())
+      .map(std::borrow::ToOwned::to_owned)
       .collect::<Vec<String>>();
 
     self

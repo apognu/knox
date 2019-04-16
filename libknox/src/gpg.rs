@@ -19,8 +19,8 @@ pub(crate) fn get_keys(
 ) -> Result<Vec<Key>, Box<dyn Error>> {
   let keys: Vec<Key> = context
     .find_keys(identities)?
-    .filter_map(|k| k.ok())
-    .filter(|k| k.can_encrypt())
+    .filter_map(Result::ok)
+    .filter(Key::can_encrypt)
     .collect();
 
   if !keys.is_empty() {

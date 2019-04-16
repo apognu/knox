@@ -12,7 +12,7 @@ pub(crate) fn init(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let identities: Vec<String> = args
     .values_of("identity")
     .unwrap()
-    .map(|s| s.to_string())
+    .map(std::string::ToString::to_string)
     .collect();
 
   let context = VaultContext::create(&path, &identities)?;
