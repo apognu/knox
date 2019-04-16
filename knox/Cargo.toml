@@ -20,7 +20,7 @@ knox_testing = { path = "../knox-testing" }
 [dependencies]
 libknox = { version = "^0.2", path = "../libknox" }
 log = "^0.4"
-pretty_env_logger = "^0.2"
+pretty_env_logger = "^0.3"
 clap = { version = "^2.0", features = ["yaml"] }
 rand = "^0.6"
 rpassword = "2.1.0"

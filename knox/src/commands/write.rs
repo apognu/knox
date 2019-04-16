@@ -20,13 +20,28 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let mut abort = false;
 
   for pwn in pwnage.iter() {
-    if let (name, PwnedResult::Pwned) = pwn {
-      warn!(
-        "the value for {} has been found in HIBP's data breaches",
-        name.bold()
-      );
-      abort = true
-    }
+    abort = match pwn {
+      (name, PwnedResult::Pwned) => {
+        warn!(
+          "the value for {} has been found in HIBP's data breaches",
+          name.bold()
+        );
+
+        true
+      }
+
+      (name, PwnedResult::Error(error)) => {
+        warn!(
+          "the value for {} could not be checked against HIBP's database ({})",
+          name.bold(),
+          error
+        );
+
+        true
+      }
+
+      _ => abort,
+    };
   }
 
   if abort && !args.is_present("force") {
@@ -64,13 +79,28 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let mut abort = false;
 
   for pwn in pwnage.iter() {
-    if let (name, PwnedResult::Pwned) = pwn {
-      warn!(
-        "the value for {} has been found in HIBP's data breaches",
-        name.bold()
-      );
-      abort = true
-    }
+    abort = match pwn {
+      (name, PwnedResult::Pwned) => {
+        warn!(
+          "the value for {} has been found in HIBP's data breaches",
+          name.bold()
+        );
+
+        true
+      }
+
+      (name, PwnedResult::Error(error)) => {
+        warn!(
+          "the value for {} could not be checked against HIBP's database ({})",
+          name.bold(),
+          error
+        );
+
+        true
+      }
+
+      _ => abort,
+    };
   }
 
   if abort && !args.is_present("force") {

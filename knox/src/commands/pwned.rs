@@ -13,7 +13,7 @@ use crate::util::vault_path;
 pub(crate) enum PwnedResult {
   Clear,
   Pwned,
-  Error,
+  Error(String),
 }
 
 pub(crate) fn pwned(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
@@ -34,13 +34,15 @@ fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   for (name, attribute) in pwnage {
     match attribute {
-      PwnedResult::Error => println!(
-        " {} {} {}:{} (could not retrieve result)",
+      PwnedResult::Error(err) => println!(
+        " {} {} {}:{} ({})",
         "::".magenta().bold(),
         "ERROR".magenta(),
         path.bold(),
-        name.dimmed()
+        name.dimmed(),
+        err
       ),
+
       PwnedResult::Clear => println!(
         " {} {} {}:{}",
         "::".green().bold(),
@@ -48,6 +50,7 @@ fn check_entry(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
         path.bold(),
         name.dimmed()
       ),
+
       PwnedResult::Pwned => println!(
         " {} {} {}:{}",
         "::".red().bold(),
@@ -74,16 +77,31 @@ fn check_vault(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     for (name, attribute) in entry.attributes {
       if attribute.confidential && !attribute.file {
         if let AttributeValue::String(value) = attribute.value() {
-          if let PwnedResult::Pwned = check(&value) {
-            count += 1;
+          match check(&value) {
+            PwnedResult::Pwned => {
+              count += 1;
 
-            progress.println(format!(
-              " {} {} {}:{}",
-              "::".red().bold(),
-              "PWNED".red(),
-              path.bold(),
-              name.dimmed()
-            ));
+              progress.println(format!(
+                " {} {} {}:{}",
+                "::".red().bold(),
+                "PWNED".red(),
+                path.bold(),
+                name.dimmed()
+              ));
+            }
+
+            PwnedResult::Error(err) => {
+              progress.println(format!(
+                " {} {} {}:{} ({})",
+                "::".red().bold(),
+                "ERROR".red(),
+                path.bold(),
+                name.dimmed(),
+                err
+              ));
+            }
+
+            PwnedResult::Clear => (),
           }
         }
       }
@@ -121,18 +139,18 @@ fn check(value: &str) -> PwnedResult {
 
   let client = reqwest::Client::new()
     .get(&format!("https://api.pwnedpasswords.com/range/{}", prefix))
-    .header("User-Agent", "vault (https://github.com/apognu/vault.rs)")
+    .header("User-Agent", "knox (https://github.com/apognu/knox)")
     .send();
 
   match client {
-    Err(_) => return PwnedResult::Error,
+    Err(err) => return PwnedResult::Error(err.description().to_string()),
     Ok(mut response) => {
       if response.status() != 200 {
-        return PwnedResult::Error;
+        return PwnedResult::Error(format!("response code was {}", response.status()));
       }
 
       match response.text() {
-        Err(_) => return PwnedResult::Error,
+        Err(err) => return PwnedResult::Error(err.description().to_string()),
         Ok(body) => {
           for line in body.lines() {
             let tokens: Vec<&str> = line.split(':').collect();
