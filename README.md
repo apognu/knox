@@ -43,8 +43,8 @@ When a vault is initialized, a local git repository is created in its directory,
 
 This project is made of two distinct crates:
 
- * **knox**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
- * **knox-bin**: A binary using the aforementioned library to provide a CLI interface to the vault.
+ * **libknox**: A library containing all the logic of managing the vault. You could use this API to develop your own interface to your vaults.
+ * **knox**: A binary using the aforementioned library to provide a CLI interface to the vault.
 
 ## Installation
 
@@ -58,7 +58,7 @@ As a library, you can add this stanza to your `Cargo.yaml`:
 
 ```
 [dependencies]
-libknox = "^0.2.0"
+libknox = "^0.3.0"
 ```
 
 ## Create the vault
