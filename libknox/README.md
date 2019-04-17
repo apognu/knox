@@ -6,7 +6,7 @@ You can refer to the [repository](https://github.com/apognu/knox) or the [docume
 
 ## Example
 
-```
+```rust
 use libknox::*;
 
 fn main() {

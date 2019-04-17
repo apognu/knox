@@ -50,22 +50,22 @@ This project is made of two distinct crates:
 
 Knox can be installed through `cargo`:
 
-```
+```console
 $ cargo install knox
 ```
 
 As a library, you can add this stanza to your `Cargo.yaml`:
 
-```
+```toml
 [dependencies]
-libknox = "^0.3.0"
+libknox = "^0.2.0"
 ```
 
 ## Create the vault
 
 The following command creates an empty vault and takes the GPG identity for which the vault will be encrypted.
 
-```
+```console
 $ knox init myidentity@example.com
  INFO  libknox::commands::init > vault initialized successfully
  INFO  knox::commands::init > local git repository initialized
@@ -77,7 +77,7 @@ A local git repository will also be created in your vault directory (see [Git in
 
 ## Add a secret
 
-```
+```console
 $ knox add dir/subdir/website.com username=apognu password=Str0ngP@ss
  INFO  libknox::commands::write > entry personal/website was successfully added to the vault
 ```
@@ -88,7 +88,7 @@ $ knox add dir/subdir/website.com username=apognu password=Str0ngP@ss
 
 One special kind of attribute is _confidential_ attributes. They only differ in that they are not printed on the console by default, and they are input interactively. Any attribute set without a value will trigger the prompt and will never be printed without the ```-p``` option.
 
-```
+```console
 $ knox add website.com username=apognu password=
 Enter value for 'password': 
  INFO  libknox::commands::write > entry personal/website was successfully added to the vault
@@ -100,7 +100,7 @@ One can generate random alphanumeric passwords with the attribute syntax ```attr
 
 The ```--symbols``` option adds special characters into the mix.
 
-```
+```console
 $ knox add personal/website username=apognu password=-
 ```
 
@@ -110,7 +110,7 @@ One can generate passwords with a different size with the ```-l``` / ```--length
 
 An entire file can be embedded into an attribute with the syntax ```attr=@/path/to/file```. File attributes will never be printed on the console, and will require the use of ```-w``` to be used.
 
-```
+```console
 $ knox add personal/ssh pubkey=@/home/apognu/.ssh/id_rsa.pub privkey=@/home/apognu/.ssh/id_rsa
 INFO  libknox::commands::write > entry personal/ssh was successfully added to the vault
 $ knox show personal/ssh
@@ -121,7 +121,7 @@ $ knox show personal/ssh
 
 ## List secrets
 
-```
+```console
 $ knox list
 🔒 Knox
   » one
@@ -148,7 +148,7 @@ You can filter the prefix for which to list secrets, for instance, `vault list s
 
 You can search for secret matching a substring:
 
-```
+```console
 $ knox search social
 🔒 Knox (search for social):
    » personal/social/facebook
@@ -158,7 +158,7 @@ $ knox search social
 
 ## Print a secret
 
-```
+```console
 $ knox show dir/subdir/website.com
 🔒 Knox / dir / subdir / website.com
    password = <redacted>
@@ -172,7 +172,7 @@ The ```-c``` option can be used to copy one attribute to the clipboard. By defau
 
 When you use the ```-w``` option in combination with showing a secret containing file attributes, all the file attributes of that secret will be written to files in a directory named after the secret path.
 
-```
+```console
 $ knox show my/secret/file
 🔒 Knox » my » secret » file
   file = <file content>
@@ -181,13 +181,13 @@ $ knox show -w my/secret/file
 
 By default, all file attributes are written to matching files. If you wish to restrict which attribute gets considered for writing, use the ```-a``` option:
 
-```
+```console
 $ knox show -w -a file1 -a file2 my/secret/files
 ```
 
 For file attributes, ```-s``` (for ```--stdout```) can also be used to print the content of a single attribute to your standard output.
 
-```
+```console
 $ knox show -w -a privkey -s sshkeys/corporate | ssh-add -
 ```
 
@@ -195,7 +195,7 @@ $ knox show -w -a privkey -s sshkeys/corporate | ssh-add -
 
 The syntax for modifying an existing secret is exactly the same as the one used to create one, with one addition: an optional list of attributes to delete.
 
-```
+```console
 $ knox edit website.com -d url username=newlogin password=
  INFO  libknox::commands::write > entry website.com was successfully edited
 ```
@@ -206,14 +206,14 @@ This command will delete thre ```url``` attribute from the secret, change the ``
 
 A secret can be renamed through the ```rename``` command:
 
-```
+```console
 $ knox rename my/first/secret new/location/secret
  INFO  libknox::commands::write > entry my/first/secret was successfully renamed to new/location/secret
 ```
 
 ## Delete a secret
 
-```
+```console
 $ knox delete dir/subdir/website.com
  INFO  libknox::commands::delete > entry 'dir/subdir/website.com' was successfully deleted from the vault
 ```
@@ -222,7 +222,7 @@ $ knox delete dir/subdir/website.com
 
 Vault integrates Troy Hunt's [Have I Been Pwned](https://haveibeenpwned.com/) to check whether some of your passwords appear in a known data breach. For now, you can manually check every confidential attribute is a specific entry:
 
-```
+```console
 $ knox pwned my/super/password
  INFO  libknox::commands::pwned > Pwnage status for attributes at pwned/test
  :: PWNED my/super/password:password
@@ -234,7 +234,8 @@ The check is also performed for confidential attributes when adding or editing a
 
 You may also omit the ```PATH``` paramter to initiate a vault-wide check against the data breaches. This may take some time, but will check all confidential attributes in your vault:
 
-```
+```console
+$ knox pwned
 INFO  libknox::commands::pwned > checking for pwned secret across your vault
  :: PWNED test/insecure/test1:password
  :: PWNED test/insecure/test1:apikey
@@ -254,7 +255,7 @@ If you use a multi-identity vault, a single private key is sufficient to decrypt
 
 When you add or remove an identity to or from the vault, all entries (including metadata) are reencrypted with the new set of public keys (as GPG recipients). This could take some time, depending on the size of your vault.
 
-```
+```console
 $ knox init myown@identity.com
  INFO  libknox::commands::init > vault initialized successfully at /vault
 [...]
@@ -275,7 +276,7 @@ Every time you edit your vault, either by adding, editing or deleting secrets, o
 
 You can manually set a remote and push your repository if you so desire:
 
-```
+```console
 $ knox git remote git@my.githost.com:passwords.git
  INFO  knox::commands::git > git remote URL set to 'git@my.githost.com:passwords.git'
 $ knox git push
@@ -288,6 +289,6 @@ For now, the only supported authentication methods is through SSH keys provided 
 
 The `examples` directory contain an example showing how to use `libknox` to manipulate vaults. You can run the example with:
 
-```
+```console
 $ cargo run --example simple
 ```
