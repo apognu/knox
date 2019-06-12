@@ -5,4 +5,5 @@ pub(crate) mod identities;
 pub(crate) mod info;
 pub(crate) mod init;
 pub(crate) mod pwned;
+pub(crate) mod totp;
 pub(crate) mod write;

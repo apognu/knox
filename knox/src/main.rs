@@ -39,6 +39,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("show", Some(args)) => commands::display::show(args),
         ("add", Some(args)) => commands::write::add(args),
         ("edit", Some(args)) => commands::write::edit(args),
+        ("totp", Some(args)) => match args.subcommand() {
+            ("configure", Some(args)) => commands::totp::configure(args),
+            ("show", Some(args)) => commands::totp::show(args),
+            _ => usage(&mut app),
+        },
         ("rename", Some(args)) => commands::write::rename(args),
         ("delete", Some(args)) => commands::delete::delete(args),
         ("pwned", Some(args)) => commands::pwned::pwned(args),

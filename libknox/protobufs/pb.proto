@@ -1,18 +1,33 @@
 syntax = "proto3";
 
 message Vault {
-  repeated string identities = 1;
-  map<string, string> index = 2;
+  repeated string identities  = 1;
+  map<string, string> index   = 2;
 }
 
 message Entry {
   map<string, Attribute> attributes = 1;
+  
+  TotpConfig totp = 100;
 }
 
 message Attribute {
-  string value = 1;
+  string value      = 1;
   bytes bytes_value = 2;
 
   bool confidential = 100;
-  bool file = 101;
+  bool file         = 101;
+}
+
+message TotpConfig {
+  bytes secret    = 1;
+  uint64 interval = 2;
+  Hash hash       = 3;
+  uint32 length   = 4;
+  
+  enum Hash {
+    SHA1    = 0;
+    SHA256  = 1;
+    SHA512  = 2;
+  }
 }

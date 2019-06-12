@@ -5,7 +5,7 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-use libknox::*;
+use libknox::{totp, *};
 
 pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   use colored::*;
@@ -24,7 +24,7 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   println!(" / {}", file_name.bold());
 
   let length = Cell::new(0);
-  let attributes: Vec<(String, String)> = entry
+  let mut attributes: Vec<(String, String)> = entry
     .get_attributes()
     .iter()
     .map(|(key, attribute)| {
@@ -40,6 +40,12 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
       }
     })
     .collect();
+
+  match (entry.has_totp(), print) {
+    (true, false) => attributes.push((String::from("@totp"), format!("{}", "<redacted>".red()))),
+    (true, true) => attributes.push((String::from("@totp"), totp::get_totp(&entry, None).unwrap())),
+    _ => (),
+  }
 
   for (key, value) in attributes {
     println!(

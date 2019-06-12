@@ -224,6 +224,7 @@ impl ::protobuf::reflect::ProtobufValue for Vault {
 pub struct Entry {
     // message fields
     pub attributes: ::std::collections::HashMap<::std::string::String, Attribute>,
+    pub totp: ::protobuf::SingularPtrField<TotpConfig>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -258,10 +259,48 @@ impl Entry {
     pub fn get_attributes(&self) -> &::std::collections::HashMap<::std::string::String, Attribute> {
         &self.attributes
     }
+
+    // .TotpConfig totp = 100;
+
+    pub fn clear_totp(&mut self) {
+        self.totp.clear();
+    }
+
+    pub fn has_totp(&self) -> bool {
+        self.totp.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_totp(&mut self, v: TotpConfig) {
+        self.totp = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_totp(&mut self) -> &mut TotpConfig {
+        if self.totp.is_none() {
+            self.totp.set_default();
+        }
+        self.totp.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_totp(&mut self) -> TotpConfig {
+        self.totp.take().unwrap_or_else(|| TotpConfig::new())
+    }
+
+    pub fn get_totp(&self) -> &TotpConfig {
+        self.totp.as_ref().unwrap_or_else(|| TotpConfig::default_instance())
+    }
 }
 
 impl ::protobuf::Message for Entry {
     fn is_initialized(&self) -> bool {
+        for v in &self.totp {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -271,6 +310,9 @@ impl ::protobuf::Message for Entry {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(wire_type, is, &mut self.attributes)?;
+                },
+                100 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.totp)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -285,6 +327,10 @@ impl ::protobuf::Message for Entry {
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
         my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(1, &self.attributes);
+        if let Some(ref v) = self.totp.as_ref() {
+            let len = v.compute_size();
+            my_size += 2 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -292,6 +338,11 @@ impl ::protobuf::Message for Entry {
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
         ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeMessage<Attribute>>(1, &self.attributes, os)?;
+        if let Some(ref v) = self.totp.as_ref() {
+            os.write_tag(100, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -339,6 +390,11 @@ impl ::protobuf::Message for Entry {
                     |m: &Entry| { &m.attributes },
                     |m: &mut Entry| { &mut m.attributes },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<TotpConfig>>(
+                    "totp",
+                    |m: &Entry| { &m.totp },
+                    |m: &mut Entry| { &mut m.totp },
+                ));
                 ::protobuf::reflect::MessageDescriptor::new::<Entry>(
                     "Entry",
                     fields,
@@ -362,6 +418,7 @@ impl ::protobuf::Message for Entry {
 impl ::protobuf::Clear for Entry {
     fn clear(&mut self) {
         self.clear_attributes();
+        self.clear_totp();
         self.unknown_fields.clear();
     }
 }
@@ -653,18 +710,346 @@ impl ::protobuf::reflect::ProtobufValue for Attribute {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct TotpConfig {
+    // message fields
+    pub secret: ::std::vec::Vec<u8>,
+    pub interval: u64,
+    pub hash: TotpConfig_Hash,
+    pub length: u32,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl TotpConfig {
+    pub fn new() -> TotpConfig {
+        ::std::default::Default::default()
+    }
+
+    // bytes secret = 1;
+
+    pub fn clear_secret(&mut self) {
+        self.secret.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_secret(&mut self, v: ::std::vec::Vec<u8>) {
+        self.secret = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_secret(&mut self) -> &mut ::std::vec::Vec<u8> {
+        &mut self.secret
+    }
+
+    // Take field
+    pub fn take_secret(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.secret, ::std::vec::Vec::new())
+    }
+
+    pub fn get_secret(&self) -> &[u8] {
+        &self.secret
+    }
+
+    // uint64 interval = 2;
+
+    pub fn clear_interval(&mut self) {
+        self.interval = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_interval(&mut self, v: u64) {
+        self.interval = v;
+    }
+
+    pub fn get_interval(&self) -> u64 {
+        self.interval
+    }
+
+    // .TotpConfig.Hash hash = 3;
+
+    pub fn clear_hash(&mut self) {
+        self.hash = TotpConfig_Hash::SHA1;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_hash(&mut self, v: TotpConfig_Hash) {
+        self.hash = v;
+    }
+
+    pub fn get_hash(&self) -> TotpConfig_Hash {
+        self.hash
+    }
+
+    // uint32 length = 4;
+
+    pub fn clear_length(&mut self) {
+        self.length = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_length(&mut self, v: u32) {
+        self.length = v;
+    }
+
+    pub fn get_length(&self) -> u32 {
+        self.length
+    }
+}
+
+impl ::protobuf::Message for TotpConfig {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.secret)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint64()?;
+                    self.interval = tmp;
+                },
+                3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.hash, 3, &mut self.unknown_fields)?
+                },
+                4 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.length = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.secret.is_empty() {
+            my_size += ::protobuf::rt::bytes_size(1, &self.secret);
+        }
+        if self.interval != 0 {
+            my_size += ::protobuf::rt::value_size(2, self.interval, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.hash != TotpConfig_Hash::SHA1 {
+            my_size += ::protobuf::rt::enum_size(3, self.hash);
+        }
+        if self.length != 0 {
+            my_size += ::protobuf::rt::value_size(4, self.length, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if !self.secret.is_empty() {
+            os.write_bytes(1, &self.secret)?;
+        }
+        if self.interval != 0 {
+            os.write_uint64(2, self.interval)?;
+        }
+        if self.hash != TotpConfig_Hash::SHA1 {
+            os.write_enum(3, self.hash.value())?;
+        }
+        if self.length != 0 {
+            os.write_uint32(4, self.length)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &::std::any::Any {
+        self as &::std::any::Any
+    }
+    fn as_any_mut(&mut self) -> &mut ::std::any::Any {
+        self as &mut ::std::any::Any
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<::std::any::Any> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> TotpConfig {
+        TotpConfig::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                    "secret",
+                    |m: &TotpConfig| { &m.secret },
+                    |m: &mut TotpConfig| { &mut m.secret },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
+                    "interval",
+                    |m: &TotpConfig| { &m.interval },
+                    |m: &mut TotpConfig| { &mut m.interval },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<TotpConfig_Hash>>(
+                    "hash",
+                    |m: &TotpConfig| { &m.hash },
+                    |m: &mut TotpConfig| { &mut m.hash },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "length",
+                    |m: &TotpConfig| { &m.length },
+                    |m: &mut TotpConfig| { &mut m.length },
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<TotpConfig>(
+                    "TotpConfig",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+
+    fn default_instance() -> &'static TotpConfig {
+        static mut instance: ::protobuf::lazy::Lazy<TotpConfig> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const TotpConfig,
+        };
+        unsafe {
+            instance.get(TotpConfig::new)
+        }
+    }
+}
+
+impl ::protobuf::Clear for TotpConfig {
+    fn clear(&mut self) {
+        self.clear_secret();
+        self.clear_interval();
+        self.clear_hash();
+        self.clear_length();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for TotpConfig {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for TotpConfig {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum TotpConfig_Hash {
+    SHA1 = 0,
+    SHA256 = 1,
+    SHA512 = 2,
+}
+
+impl ::protobuf::ProtobufEnum for TotpConfig_Hash {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<TotpConfig_Hash> {
+        match value {
+            0 => ::std::option::Option::Some(TotpConfig_Hash::SHA1),
+            1 => ::std::option::Option::Some(TotpConfig_Hash::SHA256),
+            2 => ::std::option::Option::Some(TotpConfig_Hash::SHA512),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [TotpConfig_Hash] = &[
+            TotpConfig_Hash::SHA1,
+            TotpConfig_Hash::SHA256,
+            TotpConfig_Hash::SHA512,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("TotpConfig_Hash", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for TotpConfig_Hash {
+}
+
+impl ::std::default::Default for TotpConfig_Hash {
+    fn default() -> Self {
+        TotpConfig_Hash::SHA1
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for TotpConfig_Hash {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08pb.proto\"\x8a\x01\n\x05Vault\x12\x1e\n\nidentities\x18\x01\x20\
     \x03(\tR\nidentities\x12'\n\x05index\x18\x02\x20\x03(\x0b2\x11.Vault.Ind\
     exEntryR\x05index\x1a8\n\nIndexEntry\x12\x10\n\x03key\x18\x01\x20\x01(\t\
-    R\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"\x8a\
+    R\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"\xab\
     \x01\n\x05Entry\x126\n\nattributes\x18\x01\x20\x03(\x0b2\x16.Entry.Attri\
-    butesEntryR\nattributes\x1aI\n\x0fAttributesEntry\x12\x10\n\x03key\x18\
-    \x01\x20\x01(\tR\x03key\x12\x20\n\x05value\x18\x02\x20\x01(\x0b2\n.Attri\
-    buteR\x05value:\x028\x01\"z\n\tAttribute\x12\x14\n\x05value\x18\x01\x20\
-    \x01(\tR\x05value\x12\x1f\n\x0bbytes_value\x18\x02\x20\x01(\x0cR\nbytesV\
-    alue\x12\"\n\x0cconfidential\x18d\x20\x01(\x08R\x0cconfidential\x12\x12\
-    \n\x04file\x18e\x20\x01(\x08R\x04fileb\x06proto3\
+    butesEntryR\nattributes\x12\x1f\n\x04totp\x18d\x20\x01(\x0b2\x0b.TotpCon\
+    figR\x04totp\x1aI\n\x0fAttributesEntry\x12\x10\n\x03key\x18\x01\x20\x01(\
+    \tR\x03key\x12\x20\n\x05value\x18\x02\x20\x01(\x0b2\n.AttributeR\x05valu\
+    e:\x028\x01\"z\n\tAttribute\x12\x14\n\x05value\x18\x01\x20\x01(\tR\x05va\
+    lue\x12\x1f\n\x0bbytes_value\x18\x02\x20\x01(\x0cR\nbytesValue\x12\"\n\
+    \x0cconfidential\x18d\x20\x01(\x08R\x0cconfidential\x12\x12\n\x04file\
+    \x18e\x20\x01(\x08R\x04file\"\xa8\x01\n\nTotpConfig\x12\x16\n\x06secret\
+    \x18\x01\x20\x01(\x0cR\x06secret\x12\x1a\n\x08interval\x18\x02\x20\x01(\
+    \x04R\x08interval\x12$\n\x04hash\x18\x03\x20\x01(\x0e2\x10.TotpConfig.Ha\
+    shR\x04hash\x12\x16\n\x06length\x18\x04\x20\x01(\rR\x06length\"(\n\x04Ha\
+    sh\x12\x08\n\x04SHA1\x10\0\x12\n\n\x06SHA256\x10\x01\x12\n\n\x06SHA512\
+    \x10\x02b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

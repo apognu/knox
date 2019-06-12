@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/travis/apognu/knox/master.svg?style=flat-square)
 
-A structured secret manager encrypted through GPG.
+A structured secret manager encrypted through GPG with TOTP capabilities.
 
 **Until this reaches 1.0.0, the Vault storage format is subject to breaking changes.**
 
@@ -22,6 +22,7 @@ A structured secret manager encrypted through GPG.
    * [Delete a secret](#delete-a-secret)
    * [Check if you've been pwned](#check-if-youve-been-pwned)
    * [Manage identities](#manage-identities)
+   * [Configure TOTP](#configure-totp)
    * [Git integration](#git-integration)
    * [As a library](#as-a-library)
 
@@ -268,6 +269,27 @@ $ knox identities add myfriend@identity.com
  :: re-encrypting entry personal/secret3
 
 $ knox identities delete myfriend@identity.com
+```
+
+## Configure TOTP
+
+Every entry in your vault is able to store one TOTP configuration used to generate TOTP codes. First, configure the TOTP parameters (every parameter is optional except the secret, as a base32 string):
+
+```console
+$ knox totp configure secure/website --secret abcdefghijklmnop --interval 30 --length 6 --hash sha1
+ INFO  knox::commands::totp > the TOTP configuration for secure/website has been saved successfully
+```
+
+The TOTP will appear as a virtual redacted attribute on the entry, and will also be printed with a specific command:
+
+```console
+$ knox show secure/website
+  username = apognu
+  password = <redacted>
+     @totp = <redacted>
+
+$ know totp show secure/website
+123456
 ```
 
 ## Git integration

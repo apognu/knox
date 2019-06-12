@@ -147,6 +147,49 @@ subcommands:
             short: f
             help: Force creation of the entry, bypassing safeguards
 
+  - totp:
+      subcommands:
+        - configure:
+            about: Set TOTP settings for this entry
+            args:
+              - path:
+                  value_name: PATH
+                  help: Path to the entry
+                  required: true
+              - secret:
+                  short: s
+                  long: secret
+                  value_name: SECRET
+                  help: Base32-encoded secret used for this TOTP
+                  takes_value: true
+              - interval:
+                  short: i
+                  long: interval
+                  value_name: INTERVAL
+                  help: Interval at which TOTP are generated, in seconds
+                  takes_value: true
+              - hash:
+                  short: h
+                  long: hash
+                  value_name: HASH
+                  help: 'Which hash function to use for TOTP generation (default: sha1)'
+                  takes_value: true
+                  possible_values: [sha1, sha256, sha512]
+              - length:
+                  short: l
+                  long: length
+                  value_name: LENGTH
+                  help: 'Number of digits the TOTP must contain (default: 6)'
+                  takes_value: true
+        - show:
+            about: Set TOTP settings for this entry
+            args:
+              - path:
+                  value_name: PATH
+                  help: Path to the entry
+                  required: true
+
+
   - rename:
       about: Rename an entry
       args:
