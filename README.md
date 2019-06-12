@@ -59,7 +59,7 @@ As a library, you can add this stanza to your `Cargo.yaml`:
 
 ```toml
 [dependencies]
-libknox = "^0.2.0"
+libknox = "^0.3"
 ```
 
 ## Create the vault

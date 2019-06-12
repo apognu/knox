@@ -1,6 +1,6 @@
 [package]
 name = "knox"
-version = "0.2.1"
+version = "0.3.0"
 description = "structured secret vault encrypted through GPG"
 authors = ["Antoine POPINEAU <antoine.popineau@appscho.com>"]
 repository = "https://github.com/apognu/knox"
@@ -18,7 +18,7 @@ path = "src/main.rs"
 knox_testing = { path = "../knox-testing" }
 
 [dependencies]
-libknox = { version = "^0.2", path = "../libknox" }
+libknox = { version = "^0.3", path = "../libknox" }
 log = "^0.4"
 pretty_env_logger = "^0.3"
 clap = { version = "^2.0", features = ["yaml"] }
