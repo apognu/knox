@@ -4,6 +4,7 @@ use std::fmt;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use libknox::{totp, *};
 
@@ -21,7 +22,7 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   crumbs.insert(0, "🔒 Knox".to_string());
 
   print!("{}", crumbs.join(&format!("{}", " / ".dimmed())));
-  println!(" / {}", file_name.bold());
+  println!(" {} {}", "/".dimmed(), file_name.bold());
 
   let length = Cell::new(0);
   let mut attributes: Vec<(String, String)> = entry
@@ -43,7 +44,24 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
 
   match (entry.has_totp(), print) {
     (true, false) => attributes.push((String::from("@totp"), format!("{}", "<redacted>".red()))),
-    (true, true) => attributes.push((String::from("@totp"), totp::get_totp(&entry, None).unwrap())),
+    (true, true) => {
+      if let Ok((totp, expiration)) = totp::get_totp(&entry, None) {
+        let expires_in = expiration
+          - SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        attributes.push((
+          String::from("@totp"),
+          format!(
+            "{} {}",
+            totp.blue(),
+            format!("(expires in {}s)", expires_in).dimmed()
+          ),
+        ));
+      }
+    }
     _ => (),
   }
 

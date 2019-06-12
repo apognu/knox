@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use base32::Alphabet::RFC4648;
 use colored::*;
@@ -85,9 +86,33 @@ pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let path = args.value_of("path").unwrap();
 
   let entry = vault.read_entry(path)?;
-  let totp = totp::get_totp(&entry, None)?;
+  let (totp, expiration) = totp::get_totp(&entry, None)?;
 
-  println!("{}", totp);
+  let expires_in = expiration
+    - SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .unwrap()
+      .as_secs();
+
+  let mut components: Vec<&str> = path.split('/').collect();
+  let file_name = components.pop().unwrap();
+
+  let mut crumbs = components
+    .iter()
+    .map(|component| format!("{}", component.blue()))
+    .collect::<Vec<String>>();
+
+  crumbs.insert(0, "🔒 Knox".to_string());
+
+  print!("{}", crumbs.join(&format!("{}", " / ".dimmed())));
+  println!(" {} {}", "/".dimmed(), file_name.bold());
+
+  println!(
+    "   {} {} {}",
+    "TOTP =".bold(),
+    totp,
+    format!("(expires in {}s)", expires_in).dimmed()
+  );
 
   Ok(())
 }

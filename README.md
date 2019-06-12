@@ -283,13 +283,15 @@ $ knox totp configure secure/website --secret abcdefghijklmnop --interval 30 --l
 The TOTP will appear as a virtual redacted attribute on the entry, and will also be printed with a specific command:
 
 ```console
-$ knox show secure/website
+$ knox show -p secure/website
+🔒 Knox / secure / website
   username = apognu
-  password = <redacted>
-     @totp = <redacted>
+  password = password
+     @totp = 123456 (expires in 22s)
 
 $ know totp show secure/website
-123456
+🔒 Knox / secure / website
+   TODO = 123456 (expires in 13s)
 ```
 
 ## Git integration
