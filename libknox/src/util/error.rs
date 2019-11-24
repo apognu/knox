@@ -34,7 +34,7 @@ impl<'a> Error for VaultError {
     &self.message
   }
 
-  fn cause(&self) -> Option<&Error> {
+  fn cause(&self) -> Option<&dyn Error> {
     None
   }
 }

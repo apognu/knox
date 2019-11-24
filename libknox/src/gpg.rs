@@ -36,7 +36,7 @@ pub(crate) fn encrypt(vault: &pb::Vault, object: &[u8]) -> Result<Vec<u8>, Box<d
   let mut context = get_context()?;
   let keys = get_keys(&mut context, vault.get_identities())?;
 
-  if keys.len() != vault.get_identities().len() {
+  if keys.len() < vault.get_identities().len() {
     return Err(VaultError::throw(
       "could not retrieve the public keys for all provided identities",
     ));
