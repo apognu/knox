@@ -41,6 +41,8 @@
 //! It can be run with `cargo run --example simple`.
 //!
 //! ```
+//! use libknox::{VaultContext, Entry};
+//!
 //! // Create a new vault with the given GPG identity
 //! let id = vec!["vault-test@apognu.github.com".to_string()];
 //! let mut vault = VaultContext::create("/tmp/knox-example", &id).expect("FAIL");
