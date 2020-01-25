@@ -809,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "knox"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "base32 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -818,7 +818,7 @@ dependencies = [
  "dirs 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "indicatif 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "knox_testing 0.1.0",
- "libknox 0.3.1",
+ "libknox 0.3.2",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_env_logger 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -832,7 +832,7 @@ name = "knox_testing"
 version = "0.1.0"
 dependencies = [
  "gpgme 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libknox 0.3.1",
+ "libknox 0.3.2",
  "protobuf 2.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -872,7 +872,7 @@ dependencies = [
 
 [[package]]
 name = "libknox"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "git2 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",

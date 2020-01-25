@@ -1,6 +1,6 @@
 [package]
 name = "knox"
-version = "0.3.1"
+version = "0.3.2"
 description = "structured secret vault encrypted through GPG"
 authors = ["Antoine POPINEAU <antoine.popineau@appscho.com>"]
 repository = "https://github.com/apognu/knox"
