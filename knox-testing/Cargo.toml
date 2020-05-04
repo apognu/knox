@@ -12,6 +12,6 @@ edition = "2018"
 [dependencies]
 libknox = { path = "../libknox" }
 tempfile = "^3.0"
-protobuf = "^2.2"
-gpgme = "^0.8"
-uuid = { version = "^0.7", features = ["v4"] }
+protobuf = "^2.14"
+gpgme = "0.9.2"
+uuid = { version = "0.8.1", features = ["v4"] }
