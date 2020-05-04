@@ -41,6 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("edit", Some(args)) => commands::write::edit(args),
         ("totp", Some(args)) => match args.subcommand() {
             ("configure", Some(args)) => commands::totp::configure(args),
+            ("inspect", Some(args)) => commands::totp::inspect(args),
             ("show", Some(args)) => commands::totp::show(args),
             _ => usage(&mut app),
         },

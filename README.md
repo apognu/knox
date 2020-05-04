@@ -294,6 +294,8 @@ $ know totp show secure/website
    TODO = 123456 (expires in 13s)
 ```
 
+You can inspect existing TOTP configuration through the command `knox totp inspect`, it will print it back to you.
+
 ## Git integration
 
 Every time you edit your vault, either by adding, editing or deleting secrets, or changing identities, a git commit is created in your vault directory. **No identifying information** about your secret is ever stored in the commit messages, so as not to leak any insight into what you store in your vault.

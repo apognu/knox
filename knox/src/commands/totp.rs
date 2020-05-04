@@ -81,6 +81,37 @@ pub(crate) fn configure(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+pub(crate) fn inspect(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
+    let vault = VaultContext::open(vault_path()?)?;
+    let path = args.value_of("path").unwrap();
+
+    let entry = vault.read_entry(path)?;
+
+    let mut components: Vec<&str> = path.split('/').collect();
+    let file_name = components.pop().unwrap();
+
+    let mut crumbs = components
+        .iter()
+        .map(|component| format!("{}", component.blue()))
+        .collect::<Vec<String>>();
+
+    crumbs.insert(0, "🔒 Knox".to_string());
+
+    print!("{}", crumbs.join(&format!("{}", " / ".dimmed())));
+    println!(" {} {}", "/".dimmed(), file_name.bold());
+
+    let secret = base32::encode(RFC4648 { padding: false }, entry.get_totp().get_secret());
+
+    println!("     {} = {}", "SECRET".bold(), secret);
+    println!(
+        "   {} = {}s",
+        "INTERVAL".bold(),
+        entry.get_totp().get_interval()
+    );
+
+    Ok(())
+}
+
 pub(crate) fn show(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     let vault = VaultContext::open(vault_path()?)?;
     let path = args.value_of("path").unwrap();

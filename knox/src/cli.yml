@@ -181,6 +181,13 @@ subcommands:
                   value_name: LENGTH
                   help: 'Number of digits the TOTP must contain (default: 6)'
                   takes_value: true
+        - inspect:
+            about: Display the configured TOTP settings
+            args:
+              - path:
+                  value_name: PATH
+                  help: Path to the entry
+                  required: true
         - show:
             about: Set TOTP settings for this entry
             args:
