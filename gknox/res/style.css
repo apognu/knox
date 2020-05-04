@@ -1,0 +1,95 @@
+.sidebar {
+  background: white;
+  border-right: 10px solid #cacaca;
+}
+
+.sidebar .search {
+  margin: 4px;
+}
+
+.sidebar actionbar {
+  background-color: white;
+  border: 0;
+}
+
+.sidebar treeview {
+  padding: 8px;
+  border: 0;
+}
+
+.content {
+  padding: 16px;
+}
+
+.page-path {
+  font-size: 1.1em;
+}
+
+.page-title {
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.section-title {
+  margin-top: 16px;
+  margin-bottom: 6px;
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.secret-attributes {
+  border: 1px solid #cacaca;
+  border-radius: 4px;
+  background: white;
+}
+
+.secret-attribute {
+  padding: 12px;
+  border-bottom: 1px solid #cacaca;
+}
+
+.secret-attribute:last-child {
+  border: 0;
+}
+
+.secret-attribute-name {
+  font-weight: bold;
+}
+
+.secret-attribute-confidential {
+  color: #ff7675;
+}
+
+.secret-attribute-file {
+  color: #00b894;
+}
+
+.secret-attribute button {
+  margin-left: 16px;
+}
+
+infobar > revealer > box.horizontal {
+  padding: 16px;
+  background: #34495e;
+}
+
+infobar label {
+  padding: 8px 16px;
+  background: #34495e;
+}
+
+.totp-code {
+  margin-bottom: 8px;
+  font-size: 18px;
+  letter-spacing: 5px;
+  color: black;
+}
+
+.form-entry {
+  margin-bottom: 8px;
+}
+
+.form-frame {
+  margin-bottom: 16px;
+}
