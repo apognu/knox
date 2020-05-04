@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     if let Err(error) = result {
-        error!("{}", error.description());
+        error!("{}", error.to_string());
         process::exit(1);
     }
 
