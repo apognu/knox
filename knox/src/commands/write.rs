@@ -22,20 +22,13 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   for pwn in pwnage.iter() {
     abort = match pwn {
       (name, PwnedResult::Pwned) => {
-        warn!(
-          "the value for {} has been found in HIBP's data breaches",
-          name.bold()
-        );
+        warn!("the value for {} has been found in HIBP's data breaches", name.bold());
 
         true
       }
 
       (name, PwnedResult::Error(error)) => {
-        warn!(
-          "the value for {} could not be checked against HIBP's database ({})",
-          name.bold(),
-          error
-        );
+        warn!("the value for {} could not be checked against HIBP's database ({})", name.bold(), error);
 
         true
       }
@@ -45,15 +38,10 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   if abort && !args.is_present("force") {
-    return Err(VaultError::throw(
-      "some confidential attributes were found in HIBP's database, use --force to override",
-    ));
+    return Err(VaultError::throw("some confidential attributes were found in HIBP's database, use --force to override"));
   }
 
-  let entry = Entry {
-    attributes,
-    ..Entry::default()
-  };
+  let entry = Entry { attributes, ..Entry::default() };
 
   context.write_entry(&path, &entry)?;
 
@@ -81,20 +69,13 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   for pwn in pwnage.iter() {
     abort = match pwn {
       (name, PwnedResult::Pwned) => {
-        warn!(
-          "the value for {} has been found in HIBP's data breaches",
-          name.bold()
-        );
+        warn!("the value for {} has been found in HIBP's data breaches", name.bold());
 
         true
       }
 
       (name, PwnedResult::Error(error)) => {
-        warn!(
-          "the value for {} could not be checked against HIBP's database ({})",
-          name.bold(),
-          error
-        );
+        warn!("the value for {} could not be checked against HIBP's database ({})", name.bold(), error);
 
         true
       }
@@ -104,9 +85,7 @@ pub(crate) fn edit(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   }
 
   if abort && !args.is_present("force") {
-    return Err(VaultError::throw(
-      "some confidential attributes were found in HIBP's database, use --force to override",
-    ));
+    return Err(VaultError::throw("some confidential attributes were found in HIBP's database, use --force to override"));
   }
 
   let mut entry = context.read_entry(&path)?;
@@ -136,9 +115,7 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     return Err(VaultError::throw("no entry was found at this path"));
   }
   if context.vault.get_index().contains_key(destination) {
-    return Err(VaultError::throw(
-      "an entry already exists at this destination",
-    ));
+    return Err(VaultError::throw("an entry already exists at this destination"));
   }
 
   let salt = context.vault.get_index().get(source).unwrap().clone();
@@ -147,11 +124,7 @@ pub(crate) fn rename(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   context.remove_index(source);
   context.write()?;
 
-  info!(
-    "entry {} was successfully renamed to {}",
-    source.bold(),
-    destination.bold()
-  );
+  info!("entry {} was successfully renamed to {}", source.bold(), destination.bold());
 
   context.commit("Renamed entry.")?;
 
@@ -173,22 +146,14 @@ mod tests {
     context.write().expect("could not write tests vault");
 
     let yml = load_yaml!("../cli.yml");
-    let app = App::from_yaml(yml).get_matches_from(vec![
-      "",
-      "add",
-      "foo/bar",
-      "username=mitch",
-      "password=supersecret",
-    ]);
+    let app = App::from_yaml(yml).get_matches_from(vec!["", "add", "foo/bar", "username=mitch", "password=supersecret"]);
 
     if let ("add", Some(args)) = app.subcommand() {
       assert_eq!(super::add(args).is_ok(), true);
       assert_eq!(super::add(args).is_ok(), false);
 
       let context = VaultContext::open(tmp.path()).expect("could not get vault");
-      let entry = context
-        .read_entry("foo/bar")
-        .expect("could not read added entry");
+      let entry = context.read_entry("foo/bar").expect("could not read added entry");
 
       assert_eq!(
         entry.get_attributes().get("username"),
@@ -223,19 +188,10 @@ mod tests {
     entry.add_attribute("apikey", "abcdef");
     entry.add_attribute("to_be_deleted", "abcdef");
 
-    vault
-      .write_entry("foo/bar", &entry)
-      .expect("could not write entry");
+    vault.write_entry("foo/bar", &entry).expect("could not write entry");
 
     let yml = load_yaml!("../cli.yml");
-    let app = App::from_yaml(yml).get_matches_from(vec![
-      "",
-      "edit",
-      "foo/bar",
-      "username=mitch",
-      "-d",
-      "to_be_deleted",
-    ]);
+    let app = App::from_yaml(yml).get_matches_from(vec!["", "edit", "foo/bar", "username=mitch", "-d", "to_be_deleted"]);
 
     if let ("edit", Some(args)) = app.subcommand() {
       assert_eq!(super::edit(args).is_ok(), true);
@@ -276,9 +232,7 @@ mod tests {
     entry.add_attribute("apikey", "abcdef");
     entry.add_attribute("to_be_deleted", "abcdef");
 
-    vault
-      .write_entry("foo/bar", &entry)
-      .expect("could not write entry");
+    vault.write_entry("foo/bar", &entry).expect("could not write entry");
 
     let yml = load_yaml!("../cli.yml");
 
@@ -287,10 +241,7 @@ mod tests {
     if let ("rename", Some(args)) = app.subcommand() {
       assert_eq!(super::rename(args).is_err(), true);
 
-      let retrieved = VaultContext::open(tmp.path())
-        .expect("could not open vault")
-        .read_entry("foo/bar")
-        .expect("could not read entry");
+      let retrieved = VaultContext::open(tmp.path()).expect("could not open vault").read_entry("foo/bar").expect("could not read entry");
 
       assert_eq!(&entry, &retrieved);
 
@@ -302,10 +253,7 @@ mod tests {
     if let ("rename", Some(args)) = app.subcommand() {
       assert_eq!(super::rename(args).is_ok(), true);
 
-      let retrieved = VaultContext::open(tmp.path())
-        .expect("could not open vault")
-        .read_entry("lorem/ipsum")
-        .expect("could not read entry");
+      let retrieved = VaultContext::open(tmp.path()).expect("could not open vault").read_entry("lorem/ipsum").expect("could not read entry");
 
       assert_eq!(&entry, &retrieved);
 

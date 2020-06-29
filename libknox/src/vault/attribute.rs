@@ -43,39 +43,20 @@ mod tests {
     entry.add_file_attribute("file_string", "dolor".as_bytes());
     entry.add_file_attribute("file_binary", &[0, 159, 146, 150]);
 
-    assert_eq!(
-      entry
-        .attributes
-        .get("standard")
-        .expect("could not get attribute")
-        .value(),
-      AttributeValue::String("lorem".to_string())
-    );
+    assert_eq!(entry.attributes.get("standard").expect("could not get attribute").value(), AttributeValue::String("lorem".to_string()));
 
     assert_eq!(
-      entry
-        .attributes
-        .get("confidential")
-        .expect("could not get attribute")
-        .value(),
+      entry.attributes.get("confidential").expect("could not get attribute").value(),
       AttributeValue::String("ipsum".to_string())
     );
 
     assert_eq!(
-      entry
-        .attributes
-        .get("file_string")
-        .expect("could not get attribute")
-        .value(),
+      entry.attributes.get("file_string").expect("could not get attribute").value(),
       AttributeValue::String("dolor".to_string())
     );
 
     assert_eq!(
-      entry
-        .attributes
-        .get("file_binary")
-        .expect("could not get attribute")
-        .value(),
+      entry.attributes.get("file_binary").expect("could not get attribute").value(),
       AttributeValue::Binary(vec![0, 159, 146, 150])
     );
   }

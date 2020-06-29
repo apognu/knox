@@ -12,9 +12,7 @@ pub struct VaultError {
 impl<'a> VaultError {
   /// Simple constructor for a [VaultError](struct.VaultError.html)
   pub fn new(message: &'a str) -> Self {
-    Self {
-      message: message.to_string(),
-    }
+    Self { message: message.to_string() }
   }
 
   /// Constructor for a boxed [VaultError](struct.VaultError.html)

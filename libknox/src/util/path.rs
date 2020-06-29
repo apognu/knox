@@ -59,10 +59,7 @@ mod tests {
     let tmp = spec::setup();
     let context = crate::spec::get_test_vault(tmp.path()).expect("could not get vault");
 
-    assert_eq!(
-      super::normalize_path(&context, &"lorem/ipsum"),
-      format!("{}/{}", tmp.path().display(), "lorem/ipsum"),
-    );
+    assert_eq!(super::normalize_path(&context, &"lorem/ipsum"), format!("{}/{}", tmp.path().display(), "lorem/ipsum"),);
   }
 
   #[test]

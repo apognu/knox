@@ -11,7 +11,7 @@ use libknox::*;
 
 fn main() {
   // Create a new vault with the given GPG identity
-  let id = vec!["vault-test@apognu.github.com".to_string()];
+  let id = vec!["6A25FCF213C7779AD26DC50706CB643B42E7CD3E".to_string()];
   let mut vault = VaultContext::create("/tmp/knox-example", &id).expect("FAIL");
 
   // Create a new entry with three attributes

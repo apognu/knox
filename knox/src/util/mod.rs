@@ -14,9 +14,7 @@ pub(crate) fn vault_path() -> Result<String, Box<dyn Error>> {
     Ok(path) => Ok(path),
     Err(_) => match dirs::home_dir() {
       Some(home) => Ok(format!("{}/.knox", home.display())),
-      None => Err(VaultError::throw(
-        "could not get your home directory, please set KNOX_PATH",
-      )),
+      None => Err(VaultError::throw("could not get your home directory, please set KNOX_PATH")),
     },
   }
 }

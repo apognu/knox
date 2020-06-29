@@ -62,10 +62,7 @@ impl Entry {
   /// or binary) and therefore will be encoded differently that string
   /// attributes.
   pub fn add_file_attribute(&mut self, key: &str, value: &[u8]) {
-    let mut attribute = Attribute {
-      file: true,
-      ..Attribute::default()
-    };
+    let mut attribute = Attribute { file: true, ..Attribute::default() };
 
     match String::from_utf8(value.to_vec()) {
       Ok(_) => attribute.bytes_value = value.to_vec(),
@@ -91,9 +88,7 @@ mod tests {
     entry.add_attribute("lorem", "ipsum");
     entry.add_attribute("foo", "bar");
 
-    context
-      .write_entry("pack.bin", &entry)
-      .expect("could not write pack");
+    context.write_entry("pack.bin", &entry).expect("could not write pack");
 
     let retrieved = context.read_entry("pack.bin").expect("could not read pack");
 

@@ -4,6 +4,7 @@ use std::io::Write;
 use gpgme::{edit, Context, Data, Protocol};
 use tempfile::TempDir;
 
+pub const GPG_FINGERPRINT: &str = "6A25FCF213C7779AD26DC50706CB643B42E7CD3E";
 pub const GPG_IDENTITY: &str = "vault-test@apognu.github.com";
 
 const GPG_PUBLIC_KEY: &str = "-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -41,99 +42,88 @@ CplFfpXLqCMIp9t5pI/bipBMwNU+iEwTNzpyDl0n4/pK+JfAKFlZDYOHXrpB1MI9
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 enum EditorState {
-    Start,
-    Trust,
-    Ultimate,
-    Okay,
-    Quit,
+  Start,
+  Trust,
+  Ultimate,
+  Okay,
+  Quit,
 }
 
 impl Default for EditorState {
-    fn default() -> Self {
-        EditorState::Start
-    }
+  fn default() -> Self {
+    EditorState::Start
+  }
 }
 
 #[derive(Default)]
 struct Editor;
 
 impl edit::Editor for Editor {
-    type State = EditorState;
+  type State = EditorState;
 
-    fn next_state(
-        state: Result<Self::State, gpgme::Error>,
-        status: edit::EditInteractionStatus,
-        need_response: bool,
-    ) -> Result<Self::State, gpgme::Error> {
-        use self::EditorState as State;
+  fn next_state(state: Result<Self::State, gpgme::Error>, status: edit::EditInteractionStatus, need_response: bool) -> Result<Self::State, gpgme::Error> {
+    use self::EditorState as State;
 
-        if !need_response {
-            return state;
-        }
-
-        if status.args() == Ok(edit::PROMPT) {
-            match state {
-                Ok(State::Start) => Ok(State::Trust),
-                Ok(State::Ultimate) => Ok(State::Quit),
-                Ok(State::Okay) | Err(_) => Ok(State::Quit),
-                Ok(State::Quit) => state,
-                _ => Err(gpgme::Error::GENERAL),
-            }
-        } else if (status.args() == Ok("edit_ownertrust.value")) && (state == Ok(State::Trust)) {
-            Ok(State::Ultimate)
-        } else if (status.args() == Ok("edit_ownertrust.set_ultimate.okay"))
-            && (state == Ok(State::Ultimate))
-        {
-            Ok(State::Okay)
-        } else {
-            Err(gpgme::Error::GENERAL)
-        }
+    if !need_response {
+      return state;
     }
 
-    fn action<W: Write>(&self, state: Self::State, mut out: W) -> Result<(), gpgme::Error> {
-        use self::EditorState as State;
-
-        match state {
-            State::Trust => out.write_all(b"trust")?,
-            State::Ultimate => out.write_all(b"5")?,
-            State::Okay => out.write_all(b"y")?,
-            State::Quit => write!(out, "{}", edit::QUIT)?,
-            _ => return Err(gpgme::Error::GENERAL),
-        }
-
-        Ok(())
+    if status.args() == Ok(edit::PROMPT) {
+      match state {
+        Ok(State::Start) => Ok(State::Trust),
+        Ok(State::Ultimate) => Ok(State::Quit),
+        Ok(State::Okay) | Err(_) => Ok(State::Quit),
+        Ok(State::Quit) => state,
+        _ => Err(gpgme::Error::GENERAL),
+      }
+    } else if (status.args() == Ok("edit_ownertrust.value")) && (state == Ok(State::Trust)) {
+      Ok(State::Ultimate)
+    } else if (status.args() == Ok("edit_ownertrust.set_ultimate.okay")) && (state == Ok(State::Ultimate)) {
+      Ok(State::Okay)
+    } else {
+      Err(gpgme::Error::GENERAL)
     }
+  }
+
+  fn action<W: Write>(&self, state: Self::State, mut out: W) -> Result<(), gpgme::Error> {
+    use self::EditorState as State;
+
+    match state {
+      State::Trust => out.write_all(b"trust")?,
+      State::Ultimate => out.write_all(b"5")?,
+      State::Okay => out.write_all(b"y")?,
+      State::Quit => write!(out, "{}", edit::QUIT)?,
+      _ => return Err(gpgme::Error::GENERAL),
+    }
+
+    Ok(())
+  }
 }
 
 pub fn setup() -> TempDir {
-    let tmp = tempfile::tempdir().expect("could not create temporary directory");
+  let tmp = tempfile::tempdir().expect("could not create temporary directory");
 
-    let mut context =
-        Context::from_protocol(Protocol::OpenPgp).expect("could not create GPG context");
-    context.set_armor(true);
+  let mut context = Context::from_protocol(Protocol::OpenPgp).expect("could not create GPG context");
+  context.set_armor(true);
 
-    context
-        .import(Data::from_bytes(&GPG_SECRET_KEY).expect("could not read GPG key"))
-        .expect("could not import GPG secret key");
+  context
+    .import(Data::from_bytes(&GPG_SECRET_KEY).expect("could not read GPG key"))
+    .expect("could not import GPG secret key");
 
-    context
-        .import(Data::from_bytes(&GPG_PUBLIC_KEY).expect("could not read GPG key"))
-        .expect("could not import GPG secret key");
+  context
+    .import(Data::from_bytes(&GPG_PUBLIC_KEY).expect("could not read GPG key"))
+    .expect("could not import GPG secret key");
 
-    env::set_var("KNOX_PATH", tmp.path());
+  env::set_var("KNOX_PATH", tmp.path());
 
-    let key = context
-        .get_key("6A25FCF213C7779AD26DC50706CB643B42E7CD3E")
-        .expect("could not get GPG key");
+  let key = context.get_key(GPG_FINGERPRINT).expect("could not get GPG key");
 
-    #[allow(deprecated)]
-    context
-        .edit_key_with(&key, Editor, &mut Vec::new())
-        .expect("could not set key trust level");
+  #[allow(deprecated)]
+  context.edit_key_with(&key, Editor, &mut Vec::new()).expect("could not set key trust level");
 
-    tmp
+  tmp
 }
 
 pub fn get_test_identities() -> Vec<String> {
-    vec![GPG_IDENTITY.to_string()]
+  vec![GPG_FINGERPRINT.to_string()]
 }

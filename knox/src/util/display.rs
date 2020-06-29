@@ -14,10 +14,7 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
   let mut components: Vec<&str> = path.split('/').collect();
   let file_name = components.pop().unwrap();
 
-  let mut crumbs = components
-    .iter()
-    .map(|component| format!("{}", component.blue()))
-    .collect::<Vec<String>>();
+  let mut crumbs = components.iter().map(|component| format!("{}", component.blue())).collect::<Vec<String>>();
 
   crumbs.insert(0, "🔒 Knox".to_string());
 
@@ -46,40 +43,20 @@ pub(crate) fn entry(path: &str, entry: &Entry, print: bool) {
     (true, false) => attributes.push((String::from("@totp"), format!("{}", "<redacted>".red()))),
     (true, true) => {
       if let Ok((totp, expiration)) = totp::get_totp(&entry, None) {
-        let expires_in = expiration
-          - SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let expires_in = expiration - SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
 
-        attributes.push((
-          String::from("@totp"),
-          format!(
-            "{} {}",
-            totp.blue(),
-            format!("(expires in {}s)", expires_in).dimmed()
-          ),
-        ));
+        attributes.push((String::from("@totp"), format!("{} {}", totp.blue(), format!("(expires in {}s)", expires_in).dimmed())));
       }
     }
     _ => (),
   }
 
   for (key, value) in attributes {
-    println!(
-      "{: >width$} = {}",
-      key.bold(),
-      value,
-      width = length.get() + 2
-    );
+    println!("{: >width$} = {}", key.bold(), value, width = length.get() + 2);
   }
 }
 
-pub(crate) fn write_files<T>(
-  path: T,
-  entry: &Entry,
-  filter: &Option<Vec<&str>>,
-) -> Result<(), Box<dyn Error>>
+pub(crate) fn write_files<T>(path: T, entry: &Entry, filter: &Option<Vec<&str>>) -> Result<(), Box<dyn Error>>
 where
   T: AsRef<Path> + fmt::Display,
 {
@@ -88,28 +65,18 @@ where
   let path = Path::new(&dir);
 
   if path.exists() {
-    return Err(VaultError::throw(&format!(
-      "'{}' already exists in the current directory",
-      dir
-    )));
+    return Err(VaultError::throw(&format!("'{}' already exists in the current directory", dir)));
   }
 
   fs::create_dir(&dir)?;
 
-  let attributes = entry
-    .get_attributes()
-    .iter()
-    .filter(|(key, _)| match &filter {
-      None => true,
-      Some(filter) => filter.contains(&key.as_ref()),
-    });
+  let attributes = entry.get_attributes().iter().filter(|(key, _)| match &filter {
+    None => true,
+    Some(filter) => filter.contains(&key.as_ref()),
+  });
 
   for (key, attribute) in attributes {
-    let mut file = OpenOptions::new()
-      .create(true)
-      .truncate(true)
-      .write(true)
-      .open(format!("{}/{}", &dir, key))?;
+    let mut file = OpenOptions::new().create(true).truncate(true).write(true).open(format!("{}/{}", &dir, key))?;
 
     match attribute.value() {
       AttributeValue::String(string) => file.write_all(string.as_bytes())?,

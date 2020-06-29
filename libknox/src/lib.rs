@@ -35,8 +35,8 @@
 //!
 //! This example below shows how to use the libknox API to create and
 //! manipulate a vault. It assumes the `/tmp/knox-example` is empty and that
-//! that your GPG agent has keys with the `vault-test@apognu.github.com`
-//! identity.
+//! that your GPG agent has keys with the `6A25FCF213C7779AD26DC50706CB643B42E7CD3E`
+//! fingerprint.
 //!
 //! It can be run with `cargo run --example simple`.
 //!
@@ -44,7 +44,7 @@
 //! use libknox::{VaultContext, Entry};
 //!
 //! // Create a new vault with the given GPG identity
-//! let id = vec!["vault-test@apognu.github.com".to_string()];
+//! let id = vec!["6A25FCF213C7779AD26DC50706CB643B42E7CD3E".to_string()];
 //! let mut vault = VaultContext::create("/tmp/knox-example", &id).expect("FAIL");
 //!
 //! // Create a new entry with three attributes
@@ -75,7 +75,7 @@
 //! }
 //! ```
 
-mod gpg;
+pub mod gpg;
 mod pb;
 mod util;
 

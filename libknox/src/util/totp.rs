@@ -7,9 +7,7 @@ use crate::{Entry, TotpConfig_Hash, VaultError};
 
 pub fn get_totp(entry: &Entry, time: Option<u64>) -> Result<(String, u64), Box<dyn Error>> {
   if !entry.has_totp() {
-    return Err(VaultError::throw(
-      "TOTP generation was not configured for this entry",
-    ));
+    return Err(VaultError::throw("TOTP generation was not configured for this entry"));
   }
 
   let hash = match entry.get_totp().get_hash() {
@@ -21,28 +19,12 @@ pub fn get_totp(entry: &Entry, time: Option<u64>) -> Result<(String, u64), Box<d
   let secret = entry.get_totp().get_secret();
   let interval = entry.get_totp().get_interval();
   let totp = match time {
-    Some(time) => totp_raw_custom_time(
-      secret,
-      entry.get_totp().get_length(),
-      0,
-      interval,
-      time,
-      &hash,
-    ),
+    Some(time) => totp_raw_custom_time(secret, entry.get_totp().get_length(), 0, interval, time, &hash),
 
-    None => totp_raw_now(
-      secret,
-      entry.get_totp().get_length(),
-      0,
-      entry.get_totp().get_interval(),
-      &hash,
-    ),
+    None => totp_raw_now(secret, entry.get_totp().get_length(), 0, entry.get_totp().get_interval(), &hash),
   };
 
-  let now = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap()
-    .as_secs();
+  let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
 
   let left = (interval * (now / interval)) + interval;
 
@@ -69,10 +51,7 @@ mod test {
       ..Entry::default()
     };
 
-    let totp = super::get_totp(
-      &entry,
-      Some(Utc.ymd(2014, 11, 28).and_hms(0, 0, 0).timestamp() as u64),
-    );
+    let totp = super::get_totp(&entry, Some(Utc.ymd(2014, 11, 28).and_hms(0, 0, 0).timestamp() as u64));
 
     assert_eq!(totp.is_ok(), true);
 

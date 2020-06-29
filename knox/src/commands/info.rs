@@ -16,10 +16,7 @@ pub(crate) fn info(_args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
     println!("  - {}", id);
   }
 
-  println!(
-    "\nNumber of entries: {}",
-    context.vault.get_index().len().to_string().bold()
-  );
+  println!("\nNumber of entries: {}", context.vault.get_index().len().to_string().bold());
 
   Ok(())
 }

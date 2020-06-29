@@ -12,14 +12,13 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let identity = args.value_of("identity").unwrap();
   let force = args.is_present("force");
 
-  let exists = context
-    .vault
-    .get_identities()
-    .contains(&identity.to_string());
+  let exists = context.vault.get_identities().contains(&identity.to_string());
 
   if exists {
     if !force {
-      return Err(VaultError::throw("the vault already contains the provided identity, to re-encrypt all entries with this identity, use --force"));
+      return Err(VaultError::throw(
+        "the vault already contains the provided identity, to re-encrypt all entries with this identity, use --force",
+      ));
     }
   } else {
     info!("writing metadata file...");
@@ -37,11 +36,7 @@ pub(crate) fn add(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
       context.write_entry(path, &entry)?;
 
-      progress.println(format!(
-        " {} re-encrypting entry {}",
-        "::".bold().blue(),
-        path.bold()
-      ));
+      progress.println(format!(" {} re-encrypting entry {}", "::".bold().blue(), path.bold()));
       progress.inc(1);
     }
 
@@ -59,15 +54,10 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
   let mut context = VaultContext::open(vault_path()?)?;
   let identity = args.value_of("identity").unwrap();
 
-  let exists = context
-    .vault
-    .get_identities()
-    .contains(&identity.to_string());
+  let exists = context.vault.get_identities().contains(&identity.to_string());
 
   if !exists {
-    return Err(VaultError::throw(
-      "the vault does not contain the provided identity",
-    ));
+    return Err(VaultError::throw("the vault does not contain the provided identity"));
   }
 
   info!("writing metadata file...");
@@ -83,11 +73,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
     context.write_entry(path, &entry)?;
 
-    progress.println(format!(
-      " {} re-encrypting entry {}",
-      "::".blue().bold(),
-      path.bold()
-    ));
+    progress.println(format!(" {} re-encrypting entry {}", "::".blue().bold(), path.bold()));
     progress.inc(1);
   }
 

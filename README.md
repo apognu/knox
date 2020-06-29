@@ -67,7 +67,7 @@ libknox = "^0.3"
 The following command creates an empty vault and takes the GPG identity for which the vault will be encrypted.
 
 ```console
-$ knox init myidentity@example.com
+$ knox init 6A25FCF213C7779AD26DC50706CB643B42E7CD3E
  INFO  libknox::commands::init > vault initialized successfully
  INFO  knox::commands::init > local git repository initialized
 ```
@@ -91,7 +91,7 @@ One special kind of attribute is _confidential_ attributes. They only differ in 
 
 ```console
 $ knox add website.com username=apognu password=
-Enter value for 'password': 
+Enter value for 'password':
  INFO  libknox::commands::write > entry personal/website was successfully added to the vault
 ```
 
@@ -257,10 +257,10 @@ If you use a multi-identity vault, a single private key is sufficient to decrypt
 When you add or remove an identity to or from the vault, all entries (including metadata) are reencrypted with the new set of public keys (as GPG recipients). This could take some time, depending on the size of your vault.
 
 ```console
-$ knox init myown@identity.com
+$ knox init 6A25FCF213C7779AD26DC50706CB643B42E7CD3E
  INFO  libknox::commands::init > vault initialized successfully at /vault
 [...]
-$ knox identities add myfriend@identity.com
+$ knox identities add 9AA9BDB11BB1B99A21285A330664A76954265E8C
  INFO  libknox::commands::identities > Writing metadata file...
  :: re-encrypting entry company/secret1
  :: re-encrypting entry personal/secret2
@@ -268,7 +268,7 @@ $ knox identities add myfriend@identity.com
  :: re-encrypting entry personal/secret1
  :: re-encrypting entry personal/secret3
 
-$ knox identities delete myfriend@identity.com
+$ knox identities delete 9AA9BDB11BB1B99A21285A330664A76954265E8C
 ```
 
 ## Configure TOTP

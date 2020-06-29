@@ -13,10 +13,7 @@ pub(crate) fn delete(args: &clap::ArgMatches) -> Result<(), Box<dyn Error>> {
 
   vault.delete_entry(path)?;
 
-  info!(
-    "entry {} was successfully deleted from the vault",
-    path.bold()
-  );
+  info!("entry {} was successfully deleted from the vault", path.bold());
 
   vault.commit("Deleted entry.")?;
 
@@ -38,9 +35,7 @@ mod tests {
     let mut entry = Entry::default();
     entry.add_attribute("apikey", "abcdef");
 
-    context
-      .write_entry("foo/bar", &entry)
-      .expect("could not write entry");
+    context.write_entry("foo/bar", &entry).expect("could not write entry");
 
     let yml = load_yaml!("../cli.yml");
     let app = App::from_yaml(yml).get_matches_from(vec!["", "delete", "foo/bar"]);
